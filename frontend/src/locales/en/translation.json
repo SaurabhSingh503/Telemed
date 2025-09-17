@@ -1,0 +1,58 @@
+{
+  "app": {
+    "title": "TeleMed",
+    "subtitle": "Your secure path to wellness"
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "appointments": "Appointments",
+    "health_records": "Health Records",
+    "symptom_checker": "Symptom Checker",
+    "pharmacies": "Pharmacies",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email Address",
+    "password": "Password",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "phone": "Phone Number",
+    "date_of_birth": "Date of Birth",
+    "gender": "Gender",
+    "role": "Role",
+    "patient": "Patient",
+    "doctor": "Doctor",
+    "specialization": "Specialization",
+    "secure_login": "Secure Login",
+    "create_account": "Create Your Health Account",
+    "sign_up": "Sign Up",
+    "already_have_account": "Already have an account? Log In",
+    "dont_have_account": "Don't have an account? Sign Up",
+    "forgot_password": "Forgot Password?"
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "patient_dashboard": "Patient Dashboard",
+    "doctor_dashboard": "Doctor Dashboard",
+    "book_appointment": "Book Appointment",
+    "online_consultation": "Online Consultation",
+    "view_records": "View Health Records",
+    "talk_to_doctor": "Talk to Doctor",
+    "ai_chatbot": "AI Chatbot",
+    "upcoming_appointments": "Upcoming Appointments",
+    "recent_records": "Recent Health Records"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "submit": "Submit",
+    "close": "Close"
+  }
+}

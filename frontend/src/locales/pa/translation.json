@@ -1,0 +1,31 @@
+{
+  "app": {
+    "title": "ਟੈਲੀਮੈਡ",
+    "subtitle": "ਤੰਦਰੁਸਤੀ ਲਈ ਤੁਹਾਡਾ ਸੁਰੱਖਿਤ ਰਸਤਾ"
+  },
+  "navigation": {
+    "home": "ਘਰ",
+    "dashboard": "ਡੈਸ਼ਬੋਰਡ",
+    "appointments": "ਮੁਲਾਕਾਤ",
+    "health_records": "ਸਿਹਤ ਰਿਕਾਰਡ",
+    "symptom_checker": "ਲੱਛਣ ਜਾਂਚਕਰਤਾ",
+    "pharmacies": "ਦਵਾਈ ਦੀ ਦੁਕਾਨ",
+    "profile": "ਪ੍ਰੋਫਾਈਲ",
+    "logout": "ਲੌਗਆਉਟ"
+  },
+  "auth": {
+    "login": "ਲੌਗਇਨ",
+    "register": "ਰਜਿਸਟਰ",
+    "email": "ਈਮੇਲ ਪਤਾ",
+    "password": "ਪਾਸਵਰਡ",
+    "first_name": "ਪਹਿਲਾ ਨਾਮ",
+    "last_name": "ਅੰਤਿਮ ਨਾਮ",
+    "phone": "ਫੋਨ ਨੰਬਰ",
+    "date_of_birth": "ਜਨਮ ਮਿਤੀ",
+    "gender": "ਲਿੰਗ",
+    "role": "ਭੂਮਿਕਾ",
+    "patient": "ਮਰੀਜ਼",
+    "doctor": "ਡਾਕਟਰ",
+    "specialization": "ਵਿਸ਼ੇਸ਼ਤਾ"
+  }
+}

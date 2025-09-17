@@ -1,0 +1,717 @@
+/* Component-specific styles for the telemedicine application */
+/* Custom styling for Material-UI components and application features */
+
+/* GLOBAL COMPONENT OVERRIDES */
+
+/* Custom button styles */
+.MuiButton-root {
+  text-transform: none !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+}
+
+.MuiButton-contained {
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3) !important;
+}
+
+.MuiButton-contained:hover {
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+/* Custom card styles */
+.MuiCard-root {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.MuiCard-root:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Custom paper styles */
+.MuiPaper-root {
+  border-radius: 12px !important;
+}
+
+/* Custom text field styles */
+.MuiTextField-root {
+  margin-bottom: 16px;
+}
+
+.MuiOutlinedInput-root {
+  border-radius: 8px !important;
+}
+
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #2196f3 !important;
+}
+
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-width: 2px !important;
+  border-color: #2196f3 !important;
+}
+
+/* Custom chip styles */
+.MuiChip-root {
+  border-radius: 16px !important;
+  font-weight: 500 !important;
+}
+
+.MuiChip-clickable:hover {
+  transform: scale(1.05);
+}
+
+/*LAYOUT COMPONENTS*/
+
+/* Navigation styles */
+.navbar-gradient {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%) !important;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Sidebar styles */
+.sidebar-item {
+  margin: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-item:hover {
+  background-color: rgba(33, 150, 243, 0.08);
+}
+
+.sidebar-item.active {
+  background-color: #2196f3;
+  color: white;
+}
+
+.sidebar-item.active .MuiListItemIcon-root {
+  color: white;
+}
+
+/* DASHBOARD COMPONENTS*/
+
+/* Dashboard header styles */
+.dashboard-header {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.dashboard-welcome {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Quick action cards */
+.quick-action-card {
+  height: 100%;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.15);
+  border-color: #2196f3;
+}
+
+.quick-action-icon {
+  margin-bottom: 16px;
+  opacity: 0.9;
+}
+
+/*FORM COMPONENTS*/
+
+/* Authentication forms */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+.auth-branding {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.auth-form {
+  padding: 48px 32px;
+}
+
+/* Form validation styles */
+.form-error {
+  color: #f44336;
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+.form-success {
+  color: #4caf50;
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+/*HEALTH RECORD COMPONENTS*/
+
+/* Health record cards */
+.health-record-card {
+  margin-bottom: 16px;
+  border-left: 4px solid #2196f3;
+}
+
+.health-record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.health-record-date {
+  color: #666;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.vital-item {
+  text-align: center;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.vital-value {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #2196f3;
+  margin-bottom: 4px;
+}
+
+.vital-label {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/*SYMPTOM CHECKER COMPONENTS*/
+
+/* Symptom checker layout */
+.symptom-checker-header {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.symptom-input-section {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.symptom-results-section {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  min-height: 400px;
+}
+
+.symptom-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.symptom-chip {
+  margin: 2px;
+  transition: all 0.2s ease;
+}
+
+.symptom-chip:hover {
+  transform: scale(1.05);
+}
+
+/* Condition results */
+.condition-item {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.condition-item:last-child {
+  border-bottom: none;
+}
+
+.confidence-badge {
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.confidence-high {
+  background-color: #f44336;
+  color: white;
+}
+
+.confidence-medium {
+  background-color: #ff9800;
+  color: white;
+}
+
+.confidence-low {
+  background-color: #4caf50;
+  color: white;
+}
+
+/*VIDEO CALL COMPONENTS*/
+
+/* Video call interface */
+.video-call-container {
+  background-color: #1e1e1e;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.video-call-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 16px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.video-call-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.video-call-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.video-call-button:hover {
+  transform: scale(1.1);
+}
+
+.video-call-button.muted {
+  background-color: #f44336;
+}
+
+.video-call-button.active {
+  background-color: #2196f3;
+}
+
+.video-call-frame {
+  width: 100%;
+  height: 600px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #000;
+  position: relative;
+}
+
+/*PHARMACY FINDER COMPONENTS*/
+
+/* Pharmacy finder layout */
+.pharmacy-header {
+  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.pharmacy-search-filters {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+.pharmacy-card {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.pharmacy-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(156, 39, 176, 0.15);
+  border-color: #9c27b0;
+}
+
+.pharmacy-info {
+  padding: 20px;
+}
+
+.pharmacy-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.pharmacy-address {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.pharmacy-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.pharmacy-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.pharmacy-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pharmacy-medicines {
+  margin: 16px 0;
+}
+
+.pharmacy-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/*APPOINTMENT COMPONENTS*/
+
+/* Appointment cards */
+.appointment-card {
+  border-left: 4px solid #2196f3;
+  transition: all 0.2s ease;
+}
+
+.appointment-card:hover {
+  box-shadow: 0 4px 20px rgba(33, 150, 243, 0.15);
+}
+
+.appointment-status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.appointment-status.scheduled {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.appointment-status.in-progress {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.appointment-status.completed {
+  background-color: #e8f5e8;
+  color: #388e3c;
+}
+
+.appointment-status.cancelled {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+/*NOTIFICATION COMPONENTS */
+
+/* Custom notification styles */
+.notification-enter {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.notification-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.3s ease;
+}
+
+.notification-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.notification-exit-active {
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.3s ease;
+}
+
+/* ================ RESPONSIVE DESIGN ================ */
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .auth-card {
+    margin: 16px;
+    border-radius: 12px;
+  }
+  
+  .auth-branding,
+  .auth-form {
+    padding: 24px 20px;
+  }
+  
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .vitals-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .pharmacy-contact {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .pharmacy-actions {
+    flex-direction: column;
+  }
+  
+  .video-call-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .symptom-chips-container {
+    justify-content: center;
+  }
+}
+
+/* Tablet styles */
+@media (max-width: 1024px) {
+  .dashboard-welcome {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  .vitals-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/*UTILITY CLASSES */
+
+/* Loading animations */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.loading-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Medical icon animations */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.1);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.1);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+.heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Shadow utilities */
+.shadow-light {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-medium {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.shadow-strong {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Border radius utilities */
+.rounded-small {
+  border-radius: 4px;
+}
+
+.rounded-medium {
+  border-radius: 8px;
+}
+
+.rounded-large {
+  border-radius: 12px;
+}
+
+.rounded-xl {
+  border-radius: 16px;
+}
+
+/* Text utilities */
+.text-gradient {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-medical {
+  color: #2196f3;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-full-width {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  .MuiCard-root,
+  .MuiPaper-root {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .MuiButton-contained {
+    border: 2px solid transparent;
+  }
+  
+  .MuiCard-root {
+    border: 1px solid #333;
+  }
+  
+  .MuiOutlinedInput-root {
+    border: 2px solid #333;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

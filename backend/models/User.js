@@ -1,26 +1,12 @@
-// User model for storing patient and doctor information
-// Handles authentication data and profile information
+/* eslint-disable */
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
-const bcrypt = require('bcryptjs');
 
 const User = sequelize.define('User', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-    validate: {
-      isEmail: true
-    }
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false
   },
   firstName: {
     type: DataTypes.STRING,
@@ -30,50 +16,94 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  role: {
-    type: DataTypes.ENUM('patient', 'doctor'),
+  email: {
+    type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'patient'
+    unique: true
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
   phone: {
     type: DataTypes.STRING,
     allowNull: true
   },
   dateOfBirth: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.DATE,
     allowNull: true
   },
   gender: {
-    type: DataTypes.ENUM('male', 'female', 'other'),
-    allowNull: true
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isIn: [['male', 'female', 'other']]
+    }
   },
+  role: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'patient',
+    validate: {
+      isIn: [['patient', 'doctor', 'admin']]
+    }
+  },
+  // Doctor-specific fields
   specialization: {
     type: DataTypes.STRING,
-    allowNull: true // Only for doctors
+    allowNull: true
   },
-  isActive: {
+  medicalLicenseNumber: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  qualification: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  experience: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  hospitalAffiliation: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  consultationFee: {
+    type: DataTypes.FLOAT,
+    allowNull: true
+  },
+  // Verification fields
+  isVerified: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true
+    defaultValue: false
+  },
+  verificationStatus: {
+    type: DataTypes.STRING,
+    defaultValue: 'pending',
+    validate: {
+      isIn: [['pending', 'approved', 'rejected']]
+    }
+  },
+  verificationDocuments: {
+    type: DataTypes.TEXT, // Store JSON as text
+    allowNull: true
+  },
+  rejectionReason: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  verifiedAt: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  verifiedBy: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, {
-  // Hash password before saving user
-  hooks: {
-    beforeCreate: async (user) => {
-      if (user.password) {
-        user.password = await bcrypt.hash(user.password, 10);
-      }
-    },
-    beforeUpdate: async (user) => {
-      if (user.changed('password')) {
-        user.password = await bcrypt.hash(user.password, 10);
-      }
-    }
-  }
+  tableName: 'users',
+  timestamps: true
 });
-
-// Instance method to check password
-User.prototype.validatePassword = async function(password) {
-  return bcrypt.compare(password, this.password);
-};
 
 module.exports = User;

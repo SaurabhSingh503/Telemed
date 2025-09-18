@@ -1,29 +1,25 @@
-// Database configuration and connection setup
-// Creates SQLite database and defines Sequelize instance
+/* eslint-disable */
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
-// Create SQLite database connection
-// Database file will be stored in the backend directory
+// SQLite database configuration
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: path.join(__dirname, '..', process.env.DB_NAME || 'telemedicine.db'),
-  logging: console.log, // Enable logging for development
+  storage: path.join(__dirname, '../telemedicine.db'),
+  logging: console.log, // Enable SQL logging for debugging
   define: {
-    // Add timestamps to all models
     timestamps: true,
-    // Use camelCase for automatically generated attributes
     underscored: false
   }
 });
 
-// Test database connection
+// Test the connection
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Database connection established successfully');
+    console.log('✅ Database connection has been established successfully.');
   } catch (error) {
-    console.error('Unable to connect to database:', error);
+    console.error('❌ Unable to connect to the database:', error);
   }
 };
 

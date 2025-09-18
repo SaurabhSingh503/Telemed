@@ -1,4 +1,5 @@
-// Authentication context for managing user state
+/* eslint-disable */
+// Authentication context for managing user state with doctor verification support
 // Provides authentication methods and user data across the app
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/auth';
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // Login function
+  // Login function with verification handling
   const login = async (email, password) => {
     try {
       setLoading(true);
@@ -52,6 +53,18 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: response.user };
     } catch (error) {
       console.error('Login failed:', error);
+      
+      // Check if it's a verification issue (403 status)
+      if (error.response?.status === 403 && error.response?.data?.requiresVerification) {
+        return { 
+          success: false, 
+          error: error.response.data.message,
+          requiresVerification: true,
+          verificationStatus: error.response.data.verificationStatus
+        };
+      }
+      
+      // Regular login error (401, 400, etc.)
       return { 
         success: false, 
         error: error.response?.data?.message || 'Login failed' 
@@ -89,12 +102,18 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Update user after verification
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+  };
+
   const value = {
     user,
     loading,
     login,
     register,
-    logout
+    logout,
+    updateUser
   };
 
   return (

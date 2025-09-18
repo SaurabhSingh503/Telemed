@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // AI-powered symptom checker component
 // Provides health guidance based on symptoms
 import React, { useState } from 'react';

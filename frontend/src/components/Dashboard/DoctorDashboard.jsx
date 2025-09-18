@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-// Doctor dashboard with professional medical interface
+// Doctor dashboard with professional medical interface and verification check
 // Provides access to patient management and consultation tools
 import React, { useState, useEffect } from 'react';
 import {
@@ -18,7 +18,9 @@ import {
   ListItemText,
   Chip,
   Divider,
-  IconButton
+  IconButton,
+  Alert,
+  LinearProgress
 } from '@mui/material';
 import {
   VideoCall as VideoIcon,
@@ -29,7 +31,12 @@ import {
   Person as PersonIcon,
   AccessTime as TimeIcon,
   CheckCircle as CheckIcon,
-  Add as AddIcon
+  Add as AddIcon,
+  Warning as WarningIcon,
+  Cancel as CancelIcon,
+  Pending as PendingIcon,
+  Upload as UploadIcon,
+  VerifiedUser as VerifiedIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -43,19 +50,21 @@ const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [healthRecords, setHealthRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [verificationStatus, setVerificationStatus] = useState(null);
   const [stats, setStats] = useState({
     todayAppointments: 0,
     totalPatients: 0,
     completedConsultations: 0
   });
 
-  // Load dashboard data
+  // Load dashboard data and verification status
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        const [appointmentsRes, recordsRes] = await Promise.all([
+        const [appointmentsRes, recordsRes, verificationRes] = await Promise.all([
           apiEndpoints.getAppointments(),
-          apiEndpoints.getHealthRecords()
+          apiEndpoints.getHealthRecords(),
+          apiEndpoints.getDoctorVerificationStatus()
         ]);
         
         const appointmentsData = appointmentsRes.data.appointments || [];
@@ -63,6 +72,11 @@ const DoctorDashboard = () => {
         
         setAppointments(appointmentsData);
         setHealthRecords(recordsData);
+        
+        // Set verification status
+        if (verificationRes.data.success) {
+          setVerificationStatus(verificationRes.data.data);
+        }
         
         // Calculate stats
         const today = new Date().toDateString();
@@ -94,6 +108,59 @@ const DoctorDashboard = () => {
     loadDashboardData();
   }, []);
 
+  const getStatusDisplay = (status) => {
+    switch (status) {
+      case 'pending':
+        return {
+          chip: <Chip icon={<PendingIcon />} label="Verification Pending" color="warning" />,
+          message: 'Your documents are being reviewed by our medical verification team.',
+          severity: 'info',
+          action: null
+        };
+      case 'approved':
+        return {
+          chip: <Chip icon={<VerifiedIcon />} label="Verified Doctor" color="success" />,
+          message: 'Congratulations! Your medical credentials have been verified.',
+          severity: 'success',
+          action: null
+        };
+      case 'rejected':
+        return {
+          chip: <Chip icon={<CancelIcon />} label="Verification Rejected" color="error" />,
+          message: `Verification was rejected: ${verificationStatus?.rejectionReason}`,
+          severity: 'error',
+          action: (
+            <Button 
+              variant="contained" 
+              color="primary"
+              startIcon={<UploadIcon />}
+              onClick={() => navigate('/doctor-verification')}
+              sx={{ mt: 2 }}
+            >
+              Resubmit Documents
+            </Button>
+          )
+        };
+      default:
+        return {
+          chip: <Chip icon={<WarningIcon />} label="Verification Required" color="error" />,
+          message: 'Please complete your medical credential verification to start consultations.',
+          severity: 'warning',
+          action: (
+            <Button 
+              variant="contained" 
+              color="primary" 
+              startIcon={<UploadIcon />}
+              onClick={() => navigate('/doctor-verification')}
+              sx={{ mt: 2 }}
+            >
+              Complete Verification
+            </Button>
+          )
+        };
+    }
+  };
+
   // Quick action cards for doctors
   const quickActions = [
     {
@@ -101,39 +168,110 @@ const DoctorDashboard = () => {
       description: 'Begin video consultation',
       icon: <VideoIcon sx={{ fontSize: 40 }} />,
       color: '#2196f3',
-      action: () => navigate('/video-call/doctor-consultation')
+      action: () => navigate('/video-call/doctor-consultation'),
+      disabled: !user?.isVerified
     },
     {
       title: 'Patient Records',
       description: 'View and manage patient records',
       icon: <RecordsIcon sx={{ fontSize: 40 }} />,
       color: '#4caf50',
-      action: () => {/* Navigate to records */}
+      action: () => {/* Navigate to records */},
+      disabled: !user?.isVerified
     },
     {
       title: 'Schedule Management',
       description: 'Manage appointments',
       icon: <ScheduleIcon sx={{ fontSize: 40 }} />,
       color: '#ff9800',
-      action: () => {/* Navigate to schedule */}
+      action: () => {/* Navigate to schedule */},
+      disabled: !user?.isVerified
     },
     {
       title: 'Add Health Record',
       description: 'Create new patient record',
       icon: <AddIcon sx={{ fontSize: 40 }} />,
       color: '#9c27b0',
-      action: () => {/* Open record form */}
+      action: () => {/* Open record form */},
+      disabled: !user?.isVerified
     }
   ];
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-        <Typography>Loading dashboard...</Typography>
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <LinearProgress />
+        <Typography variant="h6" textAlign="center" sx={{ mt: 2 }}>
+          Loading dashboard...
+        </Typography>
       </Container>
     );
   }
 
+  const statusDisplay = getStatusDisplay(verificationStatus?.verificationStatus);
+
+  // If doctor is not verified, show verification prompt
+  if (!user?.isVerified) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        {/* Verification Status Alert */}
+        <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
+          <Box textAlign="center">
+            <WarningIcon sx={{ fontSize: 80, color: 'warning.main', mb: 2 }} />
+            <Typography variant="h4" gutterBottom>
+              Medical Verification Required
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
+              Welcome Dr. {user?.firstName}! To ensure patient safety and maintain the highest standards 
+              of healthcare, all doctors must complete medical credential verification.
+            </Typography>
+
+            <Card sx={{ mb: 3, textAlign: 'left' }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Current Status: {statusDisplay.chip}
+                </Typography>
+                <Alert severity={statusDisplay.severity}>
+                  {statusDisplay.message}
+                </Alert>
+                {statusDisplay.action}
+              </CardContent>
+            </Card>
+
+            <Box sx={{ mt: 4, p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                📋 Verification Requirements
+              </Typography>
+              <Grid container spacing={2} sx={{ mt: 1 }}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    ✅ Medical License Certificate
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    ✅ Degree Certificates (MBBS/MD/MS)
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    ✅ Government ID Proof
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="body2">
+                    ✅ Hospital Affiliation (if any)
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        </Paper>
+      </Container>
+    );
+  }
+
+  // If verified, show normal doctor dashboard
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Welcome header */}
@@ -149,10 +287,17 @@ const DoctorDashboard = () => {
             <Typography variant="h6" sx={{ opacity: 0.9 }}>
               {user?.specialization || 'General Practitioner'}
             </Typography>
-            <Chip 
-              label={`Doctor ID: DR-${user?.id.toString().padStart(4, '0')}`}
-              sx={{ mt: 1, bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
-            />
+            <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+              <Chip 
+                icon={<VerifiedIcon />}
+                label="Verified Doctor"
+                sx={{ bgcolor: 'rgba(76,175,80,0.9)', color: 'white' }}
+              />
+              <Chip 
+                label={`Doctor ID: DR-${user?.id.toString().padStart(4, '0')}`}
+                sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
+              />
+            </Box>
           </Box>
         </Box>
       </Paper>
@@ -214,14 +359,15 @@ const DoctorDashboard = () => {
                   elevation={4} 
                   sx={{ 
                     height: '100%',
-                    cursor: 'pointer',
+                    cursor: action.disabled ? 'not-allowed' : 'pointer',
+                    opacity: action.disabled ? 0.6 : 1,
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: 8
+                      transform: action.disabled ? 'none' : 'translateY(-4px)',
+                      boxShadow: action.disabled ? 4 : 8
                     }
                   }}
-                  onClick={action.action}
+                  onClick={!action.disabled ? action.action : undefined}
                 >
                   <CardContent sx={{ textAlign: 'center', pb: 2 }}>
                     <Box sx={{ color: action.color, mb: 2 }}>
@@ -233,6 +379,14 @@ const DoctorDashboard = () => {
                     <Typography variant="body2" color="text.secondary">
                       {action.description}
                     </Typography>
+                    {action.disabled && (
+                      <Chip 
+                        label="Verification Required" 
+                        size="small" 
+                        color="warning"
+                        sx={{ mt: 1 }}
+                      />
+                    )}
                   </CardContent>
                 </Card>
               </Grid>

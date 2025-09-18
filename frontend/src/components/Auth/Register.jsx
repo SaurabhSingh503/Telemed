@@ -1,48 +1,40 @@
 /* eslint-disable */
-// Registration component with comprehensive form fields
-// Professional healthcare design with form validation
 import React, { useState } from 'react';
 import {
   Container,
   Paper,
+  Typography,
   TextField,
   Button,
-  Typography,
+  Grid,
   Box,
-  Link,
   Alert,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Checkbox,
   FormControlLabel,
-  InputAdornment,
-  IconButton,
-  Grid
+  RadioGroup,
+  Radio,
+  FormLabel,
+  Divider,
+  Card,
+  CardContent
 } from '@mui/material';
 import {
-  Person as PersonIcon,
-  Email as EmailIcon,
-  Lock as LockIcon,
-  Phone as PhoneIcon,
-  DateRange as DateIcon,
-  Visibility,
-  VisibilityOff,
   LocalHospital as HospitalIcon,
-  Favorite as HeartIcon
+  Person as PersonIcon,
+  AccountCircle as AccountIcon
 } from '@mui/icons-material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import LanguageSelector from '../Layout/LanguageSelector';
+import { useTranslation } from 'react-i18next';
 
 const Register = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { t } = useTranslation();
   
-  // Form state management - FIXED: separate firstName and lastName
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -53,73 +45,60 @@ const Register = () => {
     dateOfBirth: '',
     gender: '',
     role: 'patient',
-    specialization: '',
-    agreeTerms: false
+    specialization: '' // Only for doctors
   });
   
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Handle form input changes
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     });
+    
     // Clear error when user starts typing
     if (error) setError('');
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Basic validation
-    if (!formData.firstName.trim()) {
-      setError('First name is required');
-      return;
-    }
-    
-    if (!formData.lastName.trim()) {
-      setError('Last name is required');
-      return;
-    }
-    
-    if (!formData.email.trim()) {
-      setError('Email is required');
-      return;
-    }
-    
-    if (!formData.password) {
-      setError('Password is required');
-      return;
-    }
-    
+    setLoading(true);
+    setError('');
+
+    // Validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
-      return;
-    }
-    
-    // Validate terms agreement
-    if (!formData.agreeTerms) {
-      setError('Please agree to the Terms & Privacy Policy');
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    setError('');
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.role === 'doctor' && !formData.specialization) {
+      setError('Please select your specialization');
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await register(formData);
       
       if (result.success) {
-        // Navigate to dashboard after successful registration
-        navigate('/dashboard');
+        if (formData.role === 'doctor') {
+          // Redirect doctor to verification page
+          navigate('/doctor-verification');
+        } else {
+          // Redirect patient to dashboard
+          navigate('/dashboard');
+        }
       } else {
-        setError(result.error);
+        setError(result.error || 'Registration failed');
       }
     } catch (err) {
       setError('Registration failed. Please try again.');
@@ -128,277 +107,308 @@ const Register = () => {
     }
   };
 
+  const specializations = [
+    { value: 'general', label: 'General Medicine' },
+    { value: 'cardiology', label: 'Cardiology' },
+    { value: 'dermatology', label: 'Dermatology' },
+    { value: 'pediatrics', label: 'Pediatrics' },
+    { value: 'orthopedics', label: 'Orthopedics' },
+    { value: 'gynecology', label: 'Gynecology' },
+    { value: 'psychiatry', label: 'Psychiatry' },
+    { value: 'neurology', label: 'Neurology' },
+    { value: 'surgery', label: 'Surgery' },
+    { value: 'ophthalmology', label: 'Ophthalmology' },
+    { value: 'ent', label: 'ENT (Ear, Nose, Throat)' },
+    { value: 'radiology', label: 'Radiology' },
+    { value: 'anesthesiology', label: 'Anesthesiology' },
+    { value: 'pathology', label: 'Pathology' },
+    { value: 'other', label: 'Other' }
+  ];
+
   return (
-    <Container maxWidth="lg" sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', py: 4 }}>
-      {/* Background with healthcare theme */}
-      <Box sx={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-        zIndex: -1
-      }} />
-      
-      <Paper 
-        elevation={24}
-        sx={{ 
-          width: '100%',
-          maxWidth: 1000,
-          margin: 'auto',
+    <Box sx={{ 
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      py: 4
+    }}>
+      <Container maxWidth="md">
+        <Paper elevation={10} sx={{ 
           borderRadius: 4,
           overflow: 'hidden',
-          display: 'flex',
-          minHeight: 600
-        }}
-      >
-        {/* Left side - Healthcare illustration */}
-        <Box sx={{ 
-          flex: 1, 
-          background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
-          display: { xs: 'none', md: 'flex' },
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          p: 4,
-          position: 'relative'
+          boxShadow: '0 20px 60px rgba(0,0,0,0.1)'
         }}>
-          {/* Healthcare theme */}
-          <Box sx={{ 
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mb: 4
-          }}>
-            <HeartIcon sx={{ fontSize: 80, color: 'primary.main', mr: 2 }} />
-            <HospitalIcon sx={{ fontSize: 60, color: 'secondary.main' }} />
-          </Box>
-          
-          <Typography variant="h4" fontWeight="bold" color="primary.main" gutterBottom textAlign="center">
-            Join Our Healthcare Community
-          </Typography>
-          <Typography variant="h6" color="text.secondary" textAlign="center">
-            Connect with doctors, manage your health records, and access quality healthcare from anywhere.
-          </Typography>
-        </Box>
-
-        {/* Right side - Registration form */}
-        <Box sx={{ flex: 1, p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          {/* Language selector */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <LanguageSelector />
-          </Box>
-
-          <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
-            Create Your Health Account
-          </Typography>
-          
-          <form onSubmit={handleSubmit}>
-            <Box sx={{ mt: 2 }}>
-              {/* Error alert */}
-              {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  {error}
-                </Alert>
-              )}
-
-              {/* Name fields - FIXED: Separate first and last name */}
-              <Grid container spacing={2} sx={{ mb: 2 }}>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    label="First Name"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    required
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PersonIcon color="primary" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    label="Last Name"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    required
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PersonIcon color="primary" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-              </Grid>
-
-              {/* Email field */}
-              <TextField
-                fullWidth
-                label="Email Address"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                margin="normal"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <EmailIcon color="primary" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              {/* Password fields */}
-              <Grid container spacing={2} sx={{ mb: 2 }}>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    label="Password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    margin="normal"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockIcon color="primary" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    fullWidth
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    margin="normal"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LockIcon color="primary" />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            edge="end"
-                          >
-                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-              </Grid>
-
-              {/* Role selection */}
-              <FormControl fullWidth margin="normal">
-                <InputLabel>I am a</InputLabel>
-                <Select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  label="I am a"
-                >
-                  <MenuItem value="patient">Patient</MenuItem>
-                  <MenuItem value="doctor">Doctor</MenuItem>
-                </Select>
-              </FormControl>
-
-              {/* Specialization for doctors */}
-              {formData.role === 'doctor' && (
-                <TextField
-                  fullWidth
-                  label="Specialization"
-                  name="specialization"
-                  value={formData.specialization}
-                  onChange={handleChange}
-                  margin="normal"
-                  placeholder="e.g., General Medicine, Cardiology, Pediatrics"
-                />
-              )}
-
-              {/* Terms checkbox */}
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    name="agreeTerms"
-                    checked={formData.agreeTerms}
-                    onChange={handleChange}
-                    color="primary"
-                  />
-                }
-                label={
-                  <Typography variant="body2">
-                    I agree to the <Link href="#" color="primary">Terms & Privacy Policy</Link>
-                  </Typography>
-                }
-                sx={{ mt: 2 }}
-              />
-
-              {/* Register button */}
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                size="large"
-                disabled={loading}
-                sx={{ 
-                  py: 1.5, 
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  mt: 2,
-                  borderRadius: 3
-                }}
-              >
-                {loading ? 'Creating Account...' : 'Create Health Account'}
-              </Button>
-
-              {/* Login link */}
-              <Box sx={{ textAlign: 'center', mt: 2 }}>
+          <Grid container>
+            {/* Left side - Branding */}
+            <Grid item xs={12} md={5} sx={{
+              background: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)',
+              color: 'white',
+              p: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              textAlign: 'center'
+            }}>
+              <HospitalIcon sx={{ fontSize: 64, mb: 2, opacity: 0.9 }} />
+              <Typography variant="h4" fontWeight="bold" gutterBottom>
+                Join TeleMedicine
+              </Typography>
+              <Typography variant="body1" sx={{ opacity: 0.9, mb: 3 }}>
+                {t('app.subtitle')}
+              </Typography>
+              <Box sx={{ mt: 4, p: 3, bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  👨‍⚕️ For Healthcare Providers
+                </Typography>
                 <Typography variant="body2">
-                  Already have an account?{' '}
-                  <Link component={RouterLink} to="/login" color="primary">
-                    Sign In
-                  </Link>
+                  Register as a doctor and help patients in rural areas access quality healthcare through telemedicine.
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>
+                  ⚠️ Document verification required after registration
                 </Typography>
               </Box>
-            </Box>
-          </form>
-        </Box>
-      </Paper>
-    </Container>
+            </Grid>
+
+            {/* Right side - Registration form */}
+            <Grid item xs={12} md={7} sx={{ p: 4 }}>
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
+                  Create Account
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Fill in your details to get started
+                </Typography>
+              </Box>
+
+              <form onSubmit={handleSubmit}>
+                {error && (
+                  <Alert severity="error" sx={{ mb: 3 }}>
+                    {error}
+                  </Alert>
+                )}
+
+                {/* Account Type Selection */}
+                <Card sx={{ mb: 3, border: '2px solid #e3f2fd' }}>
+                  <CardContent>
+                    <FormLabel component="legend" sx={{ mb: 2, fontWeight: 'bold' }}>
+                      <AccountIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                      I am registering as:
+                    </FormLabel>
+                    <RadioGroup
+                      row
+                      name="role"
+                      value={formData.role}
+                      onChange={handleInputChange}
+                      sx={{ justifyContent: 'space-around' }}
+                    >
+                      <FormControlLabel 
+                        value="patient" 
+                        control={<Radio />} 
+                        label="Patient" 
+                        sx={{ 
+                          border: formData.role === 'patient' ? '2px solid #2196f3' : '1px solid #ddd',
+                          borderRadius: 1,
+                          px: 2,
+                          py: 1,
+                          m: 0.5
+                        }}
+                      />
+                      <FormControlLabel 
+                        value="doctor" 
+                        control={<Radio />} 
+                        label="Doctor" 
+                        sx={{
+                          border: formData.role === 'doctor' ? '2px solid #2196f3' : '1px solid #ddd',
+                          borderRadius: 1,
+                          px: 2,
+                          py: 1,
+                          m: 0.5
+                        }}
+                      />
+                    </RadioGroup>
+                  </CardContent>
+                </Card>
+
+                {/* Personal Information */}
+                <Typography variant="h6" gutterBottom sx={{ mt: 3, mb: 2 }}>
+                  <PersonIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                  Personal Information
+                </Typography>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="First Name"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Last Name"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Email Address"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Phone Number"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      variant="outlined"
+                      placeholder="+91 9876543210"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Date of Birth"
+                      name="dateOfBirth"
+                      type="date"
+                      value={formData.dateOfBirth}
+                      onChange={handleInputChange}
+                      InputLabelProps={{ shrink: true }}
+                      variant="outlined"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Gender</InputLabel>
+                      <Select
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleInputChange}
+                        label="Gender"
+                      >
+                        <MenuItem value="male">Male</MenuItem>
+                        <MenuItem value="female">Female</MenuItem>
+                        <MenuItem value="other">Other</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  {/* Doctor-specific field */}
+                  {formData.role === 'doctor' && (
+                    <>
+                      <Grid item xs={12}>
+                        <Divider sx={{ my: 2 }} />
+                        <Typography variant="h6" gutterBottom color="primary">
+                          🏥 Medical Specialization
+                        </Typography>
+                        <Alert severity="info" sx={{ mb: 2 }}>
+                          After registration, you'll need to upload your medical license and certificates for verification.
+                        </Alert>
+                      </Grid>
+                      
+                      <Grid item xs={12}>
+                        <FormControl fullWidth required>
+                          <InputLabel>Medical Specialization</InputLabel>
+                          <Select
+                            name="specialization"
+                            value={formData.specialization}
+                            onChange={handleInputChange}
+                            label="Medical Specialization"
+                          >
+                            {specializations.map((spec) => (
+                              <MenuItem key={spec.value} value={spec.value}>
+                                {spec.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                    </>
+                  )}
+
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Password"
+                      name="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                      helperText="Minimum 6 characters"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                </Grid>
+
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  disabled={loading}
+                  sx={{ 
+                    mt: 4, 
+                    mb: 2,
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {loading ? 'Creating Account...' : 
+                   formData.role === 'doctor' ? 'Register & Verify Credentials' : 'Create Account'}
+                </Button>
+
+                <Box textAlign="center">
+                  <Typography variant="body2" color="text.secondary">
+                    Already have an account?{' '}
+                    <Link to="/login" style={{ color: '#2196f3', textDecoration: 'none' }}>
+                      Sign In
+                    </Link>
+                  </Typography>
+                </Box>
+              </form>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

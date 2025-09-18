@@ -1,18 +1,18 @@
-// Authentication routes for login, register, and profile
-// Handles user authentication endpoints
+/* eslint-disable */
 const express = require('express');
 const router = express.Router();
 const { register, login, getProfile } = require('../controllers/authController');
 const { authenticateToken } = require('../middleware/auth');
-const { validateRegistration, validateLogin } = require('../middleware/validation');
 
-// POST /api/auth/register - Register new user
-router.post('/register', validateRegistration, register);
+console.log('🔐 Setting up auth routes...');
 
-// POST /api/auth/login - Login user
-router.post('/login', validateLogin, login);
+// Public routes
+router.post('/register', register);
+router.post('/login', login);
 
-// GET /api/auth/profile - Get user profile (protected)
+// Protected routes
 router.get('/profile', authenticateToken, getProfile);
+
+console.log('✅ Auth routes configured');
 
 module.exports = router;

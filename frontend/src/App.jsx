@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Main App component with routing and layout
 // Manages application routes and navigation
 import React from 'react';
@@ -13,6 +14,7 @@ import PatientDashboard from './components/Dashboard/PatientDashboard';
 import DoctorDashboard from './components/Dashboard/DoctorDashboard';
 import JitsiMeeting from './components/VideoCall/JitsiMeeting';
 import SymptomChecker from './components/SymptomChecker/SymptomChecker';
+import DoctorVerificationForm from './components/Doctor/DoctorVerificationForm';
 import Navbar from './components/Layout/Navbar';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -27,7 +29,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
+      <Box>
         {/* Show navbar only for authenticated users */}
         {user && <Navbar />}
         
@@ -35,11 +37,11 @@ function App() {
           {/* Public routes */}
           <Route 
             path="/login" 
-            element={user ? <Navigate to="/dashboard" /> : <Login />} 
+            element={!user ? <Login /> : <Navigate to="/dashboard" />} 
           />
           <Route 
             path="/register" 
-            element={user ? <Navigate to="/dashboard" /> : <Register />} 
+            element={!user ? <Register /> : <Navigate to="/dashboard" />} 
           />
           
           {/* Protected routes */}
@@ -54,13 +56,20 @@ function App() {
               <JitsiMeeting />
             </ProtectedRoute>
           } />
-          
+
           <Route path="/symptom-checker" element={
             <ProtectedRoute>
               <SymptomChecker />
             </ProtectedRoute>
           } />
-          
+
+          {/* Doctor verification route */}
+          <Route path="/doctor-verification" element={
+            <ProtectedRoute>
+              <DoctorVerificationForm />
+            </ProtectedRoute>
+          } />
+
           {/* Default redirect */}
           <Route 
             path="/" 

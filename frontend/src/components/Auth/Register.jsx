@@ -151,9 +151,9 @@ const Register = () => {
               textAlign: 'center'
             }}>
               <HospitalIcon sx={{ fontSize: 64, mb: 2, opacity: 0.9 }} />
-              <Typography variant="h4" fontWeight="bold" gutterBottom>
-                Join TeleMedicine
-              </Typography>
+              <Typography variant="h3" fontWeight="bold" gutterBottom sx={{ zIndex: 1 }}>
+  {t('app.join_title') || 'Join TeleMed'}
+               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9, mb: 3 }}>
                 {t('app.subtitle')}
               </Typography>

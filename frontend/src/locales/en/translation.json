@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "TeleMed",
-    "subtitle": "Your secure path to wellness"
+    "subtitle": "Your secure path to wellness",
+    "join_title": "Join TeleMed"
   },
   "navigation": {
     "home": "Home",
@@ -43,8 +44,69 @@
     "view_records": "View Health Records",
     "talk_to_doctor": "Talk to Doctor",
     "ai_chatbot": "AI Chatbot",
+    "health_records": "Health Records",
+    "find_pharmacies": "Find Pharmacies",
+    "pharmacy_locator": "Pharmacy Locator",
+    "video_consultation": "Video Consultation",
+    "start_consultation": "Start Consultation",
+    "patient_records": "Patient Records",
+    "schedule_management": "Schedule Management",
+    "add_health_record": "Add Health Record",
     "upcoming_appointments": "Upcoming Appointments",
-    "recent_records": "Recent Health Records"
+    "recent_appointments": "Recent Appointments",
+    "recent_records": "Recent Health Records",
+    "recent_patient_records": "Recent Patient Records",
+    "today_appointments": "Today's Appointments",
+    "quick_actions": "Quick Actions",
+    "your_health_priority": "Your health is our priority",
+    "general_consultation": "General Consultation",
+    "no_appointments": "No appointments found",
+    "no_records": "No health records found",
+    "no_appointments_today": "No appointments scheduled for today",
+    "view_all_appointments": "View All Appointments",
+    "view_all_records": "View All Records",
+    "loading_dashboard": "Loading dashboard...",
+    "patient_id": "Patient ID",
+    "doctor_id": "Doctor ID"
+  },
+  "doctor": {
+    "verified_doctor": "Verified Doctor",
+    "medical_verification_required": "Medical Verification Required",
+    "verification_pending": "Verification Pending",
+    "verification_rejected": "Verification Rejected",
+    "verification_required": "Verification Required",
+    "complete_verification": "Complete Verification",
+    "resubmit_documents": "Resubmit Documents",
+    "verification_requirements": "Verification Requirements",
+    "medical_license": "Medical License Certificate",
+    "degree_certificates": "Degree Certificates (MBBS/MD/MS)",
+    "government_id": "Government ID Proof",
+    "hospital_affiliation": "Hospital Affiliation (if any)"
+  },
+  "actions": {
+    "talk_to_doctor": "Talk to Doctor",
+    "ai_chatbot": "AI Chatbot", 
+    "health_records": "Health Records",
+    "find_pharmacies": "Find Pharmacies",
+    "start_consultation": "Start Consultation",
+    "patient_records": "Patient Records",
+    "schedule_management": "Schedule Management",
+    "add_health_record": "Add Health Record"
+  },
+  "descriptions": {
+    "video_consultation": "Video consultation with healthcare providers",
+    "instant_health_guidance": "Get instant health guidance",
+    "view_medical_history": "View your medical history",
+    "locate_pharmacies": "Locate nearby pharmacies",
+    "begin_video_consultation": "Begin video consultation",
+    "manage_patient_records": "View and manage patient records",
+    "manage_appointments": "Manage appointments",
+    "create_patient_record": "Create new patient record"
+  },
+  "stats": {
+    "today_appointments": "Today's Appointments",
+    "total_patients": "Total Patients",
+    "completed_consultations": "Completed Consultations"
   },
   "common": {
     "loading": "Loading...",

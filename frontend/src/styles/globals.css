@@ -101,6 +101,24 @@ body {
 .medical-icon {
   filter: drop-shadow(0 2px 4px rgba(33, 150, 243, 0.3));
 }
+@media (max-width: 600px) {
+  .MuiPaper-root, .paper, .card {
+    box-shadow: none !important;
+    border-radius: 12px !important;
+    margin: 16px 0 !important;
+    padding: 8px !important;
+  }
+  .MuiGrid-item, .grid-item {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  input, .MuiInputBase-input {
+    font-size: 1.1em !important;
+    min-height: 40px;
+    width: 100% !important;
+  }
+}
+
 
 /* Responsive design helpers */
 @media (max-width: 768px) {
@@ -126,3 +144,5 @@ body {
     display: none !important;
   }
 }
+
+

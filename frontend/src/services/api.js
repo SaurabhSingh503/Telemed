@@ -23,7 +23,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log('API Request:', config.method?.toUpperCase(), config.url); // Debug log
+    console.log('API Request:', config.method?.toUpperCase(), config.url, config.params); // Debug log
     return config;
   },
   (error) => {
@@ -35,14 +35,15 @@ api.interceptors.request.use(
 // Handle response errors globally
 api.interceptors.response.use(
   (response) => {
-    console.log('API Response:', response.status, response.config.url); // Debug log
+    console.log('API Response:', response.status, response.config.url, response.data); // Debug log
     return response;
   },
   (error) => {
     console.error('API Error:', {
       status: error.response?.status,
       url: error.config?.url,
-      message: error.response?.data?.message || error.message
+      message: error.response?.data?.message || error.message,
+      data: error.response?.data
     });
     
     // If token is invalid, redirect to login
@@ -70,8 +71,11 @@ export const apiEndpoints = {
   createAppointment: (data) => api.post('/appointments', data),
   getDoctors: () => api.get('/appointments/doctors'),
   
-  // Pharmacies
-  getPharmacies: (params) => api.get('/pharmacies', { params }),
+  // Pharmacies - THIS IS THE KEY ONE
+  getPharmacies: (params) => {
+    console.log('Calling pharmacy API with params:', params);
+    return api.get('/pharmacies', { params });
+  },
   
   // Symptom Checker
   checkSymptoms: (symptoms) => api.post('/symptom-checker', { symptoms }),
@@ -86,10 +90,11 @@ export const apiEndpoints = {
   },
   getDoctorVerificationStatus: () => api.get('/doctor-verification/status'),
   
-  // Admin endpoints for verification
+ // Admin endpoints
   getPendingVerifications: () => api.get('/doctor-verification/pending'),
-  approveDoctorVerification: (doctorId) => api.post(`/doctor-verification/approve/${doctorId}`),
-  rejectDoctorVerification: (doctorId, reason) => api.post(`/doctor-verification/reject/${doctorId}`, { reason })
+  getVerifiedDoctors: () => api.get('/doctor-verification/verified'),
+  approveDoctorVerification: (doctorId, data) => api.post(`/doctor-verification/approve/${doctorId}`, data),
+  rejectDoctorVerification: (doctorId, data) => api.post(`/doctor-verification/reject/${doctorId}`, data)
 };
 
 export default api;

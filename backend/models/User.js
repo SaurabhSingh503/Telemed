@@ -106,4 +106,18 @@ const User = sequelize.define('User', {
   timestamps: true
 });
 
+User.associate = (models) => {
+  // Patient can have many appointments
+  User.hasMany(models.Appointment, {
+    foreignKey: 'patientId',
+    as: 'PatientAppointments'
+  });
+
+  // Doctor can have many appointments
+  User.hasMany(models.Appointment, {
+    foreignKey: 'doctorId',
+    as: 'DoctorAppointments'
+  });
+};
+
 module.exports = User;

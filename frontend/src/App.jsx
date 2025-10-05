@@ -18,7 +18,15 @@ import DoctorVerificationForm from './components/Doctor/DoctorVerificationForm';
 import Navbar from './components/Layout/Navbar';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import PharmacyFinder from './components/Pharmacy/PharmacyFinder';
+<Route path="/pharmacies" element={
+  <ProtectedRoute>
+    <PharmacyFinder />
+  </ProtectedRoute>
+} />
+import PharmacyTest from './components/Debug/PharmacyTest';
 
+<Route path="/test-pharmacy" element={<PharmacyTest />} />
 function App() {
   const { user, loading } = useAuth();
 

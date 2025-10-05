@@ -1,6 +1,6 @@
 /* eslint-disable */
-// Authentication context for managing user state with doctor verification support
-// Provides authentication methods and user data across the app
+// Authentication context with proper login/logout handling
+// Manages user state and authentication operations
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/auth';
 
@@ -17,57 +17,93 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Check for existing token on app start
+  // Initialize user state on app load
   useEffect(() => {
-    const checkAuth = async () => {
+    const initializeAuth = async () => {
       try {
-        const token = localStorage.getItem('token');
+        console.log('🔍 Initializing auth state...');
+        const token = authService.getToken();
+        
         if (token) {
-          // Verify token and get user profile
-          const userProfile = await authService.getProfile();
-          setUser(userProfile);
+          console.log('📧 Token found, fetching user profile...');
+          try {
+            const userData = await authService.getProfile();
+            console.log('✅ User profile loaded:', userData);
+            setUser(userData);
+          } catch (profileError) {
+            console.error('❌ Failed to load profile:', profileError);
+            // Token might be invalid, clear it
+            authService.clearToken();
+            setUser(null);
+          }
+        } else {
+          console.log('❌ No token found');
+          setUser(null);
         }
       } catch (error) {
-        // Token invalid, remove it
-        localStorage.removeItem('token');
-        console.error('Auth check failed:', error);
+        console.error('❌ Auth initialization error:', error);
+        authService.clearToken();
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
 
-    checkAuth();
+    initializeAuth();
   }, []);
 
-  // Login function with verification handling
+  // Login function
   const login = async (email, password) => {
     try {
+      console.log('🔑 Login attempt for:', email);
+      setError('');
       setLoading(true);
-      const response = await authService.login(email, password);
-      
-      // Store token and user data
-      localStorage.setItem('token', response.token);
-      setUser(response.user);
-      
-      return { success: true, user: response.user };
-    } catch (error) {
-      console.error('Login failed:', error);
-      
-      // Check if it's a verification issue (403 status)
-      if (error.response?.status === 403 && error.response?.data?.requiresVerification) {
+
+      const result = await authService.login(email, password);
+      console.log('📧 Login API response:', result);
+
+      if (result.success && result.token && result.user) {
+        // Store token
+        localStorage.setItem('token', result.token);
+        
+        // Set user state
+        setUser(result.user);
+        
+        console.log('✅ Login successful:', result.user);
+        return { success: true, user: result.user };
+      } else {
+        const errorMessage = result.message || 'Login failed';
+        console.error('❌ Login failed:', errorMessage);
+        setError(errorMessage);
+        
         return { 
           success: false, 
-          error: error.response.data.message,
-          requiresVerification: true,
-          verificationStatus: error.response.data.verificationStatus
+          error: errorMessage,
+          requiresVerification: result.requiresVerification,
+          verificationStatus: result.verificationStatus
         };
       }
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      let errorMessage = 'Login failed';
+      let requiresVerification = false;
+      let verificationStatus = null;
       
-      // Regular login error (401, 400, etc.)
+      if (error.response?.data) {
+        errorMessage = error.response.data.message || errorMessage;
+        requiresVerification = error.response.data.requiresVerification || false;
+        verificationStatus = error.response.data.verificationStatus || null;
+      }
+      
+      setError(errorMessage);
+      
       return { 
         success: false, 
-        error: error.response?.data?.message || 'Login failed' 
+        error: errorMessage,
+        requiresVerification,
+        verificationStatus
       };
     } finally {
       setLoading(false);
@@ -77,20 +113,33 @@ export const AuthProvider = ({ children }) => {
   // Register function
   const register = async (userData) => {
     try {
+      console.log('📝 Registration attempt for:', userData.email);
+      setError('');
       setLoading(true);
-      const response = await authService.register(userData);
-      
-      // Store token and user data
-      localStorage.setItem('token', response.token);
-      setUser(response.user);
-      
-      return { success: true, user: response.user };
+
+      const result = await authService.register(userData);
+      console.log('📧 Register API response:', result);
+
+      if (result.success && result.token && result.user) {
+        // Store token
+        localStorage.setItem('token', result.token);
+        
+        // Set user state
+        setUser(result.user);
+        
+        console.log('✅ Registration successful:', result.user);
+        return { success: true, user: result.user };
+      } else {
+        const errorMessage = result.message || 'Registration failed';
+        console.error('❌ Registration failed:', errorMessage);
+        setError(errorMessage);
+        return { success: false, error: errorMessage };
+      }
     } catch (error) {
-      console.error('Registration failed:', error);
-      return { 
-        success: false, 
-        error: error.response?.data?.message || 'Registration failed' 
-      };
+      console.error('❌ Registration error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Registration failed';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
@@ -98,27 +147,35 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('token');
+    console.log('🚪 Logging out user...');
+    
+    // Clear token from storage
+    authService.clearToken();
+    
+    // Clear user state
     setUser(null);
+    setError('');
+    
+    console.log('✅ Logout successful');
   };
 
-  // Update user after verification
-  const updateUser = (updatedUser) => {
-    setUser(updatedUser);
+  // Update user function (for profile updates)
+  const updateUser = (updatedUserData) => {
+    console.log('🔄 Updating user data:', updatedUserData);
+    setUser(prevUser => ({ ...prevUser, ...updatedUserData }));
   };
 
   const value = {
     user,
     loading,
+    error,
     login,
     register,
     logout,
-    updateUser
+    updateUser,
+    isAuthenticated: !!user,
+    setError // For clearing errors from components
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -1,5 +1,4 @@
-// Pharmacy model for storing pharmacy location and medicine data
-// Supports geolocation-based pharmacy finding
+/* eslint-disable */
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
@@ -26,11 +25,11 @@ const Pharmacy = sequelize.define('Pharmacy', {
     allowNull: true
   },
   latitude: {
-    type: DataTypes.DECIMAL(10, 8),
+    type: DataTypes.FLOAT,
     allowNull: true
   },
   longitude: {
-    type: DataTypes.DECIMAL(11, 8),
+    type: DataTypes.FLOAT,
     allowNull: true
   },
   isOpen24Hours: {
@@ -38,13 +37,24 @@ const Pharmacy = sequelize.define('Pharmacy', {
     defaultValue: false
   },
   openingHours: {
-    type: DataTypes.JSON, // Store hours for each day
+    type: DataTypes.TEXT, // Store JSON as text
     allowNull: true
   },
   medicines: {
-    type: DataTypes.JSON, // Store available medicines and stock
+    type: DataTypes.TEXT, // Store JSON as text
     allowNull: true
+  },
+  rating: {
+    type: DataTypes.FLOAT,
+    defaultValue: 4.0
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   }
+}, {
+  tableName: 'pharmacies',
+  timestamps: true
 });
 
 module.exports = Pharmacy;

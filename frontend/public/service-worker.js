@@ -1,3 +1,5 @@
+/* eslint-disable array-callback-return */
+/* eslint-disable no-restricted-globals */
 /* eslint-env serviceworker */
 const CACHE_NAME = 'telemedicine-v1';
 const urlsToCache = [

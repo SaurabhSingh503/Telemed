@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Login component with form validation, authentication, and doctor verification handling
 // Matches the blue healthcare design from the attached images
 import React, { useState } from 'react';
@@ -15,7 +16,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  CircularProgress
 } from '@mui/material';
 import { 
   Email as EmailIcon,
@@ -36,7 +38,7 @@ import LanguageSelector from '../Layout/LanguageSelector';
 const Login = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loading: authLoading, error: authError, setError } = useAuth();
   
   // Form state management
   const [formData, setFormData] = useState({
@@ -44,7 +46,7 @@ const Login = () => {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setLocalError] = useState('');
   const [loading, setLoading] = useState(false);
   const [verificationDialog, setVerificationDialog] = useState({
     open: false,
@@ -59,37 +61,67 @@ const Login = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    // Clear error when user starts typing
-    if (error) setError('');
+    // Clear errors when user starts typing
+    if (error) setLocalError('');
+    if (authError && setError) setError('');
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setLocalError('');
+    if (setError) setError('');
+    
+    // Basic validation
+    if (!formData.email.trim() || !formData.password.trim()) {
+      setLocalError('Please fill in both email and password');
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setLocalError('Please enter a valid email address');
+      return;
+    }
+
+    console.log('🔑 Login form submitted:', formData.email);
     setLoading(true);
-    setError('');
 
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await login(formData.email.trim(), formData.password);
       
-      if (result.success) {
-        // Navigate to dashboard after successful login
-        navigate('/dashboard');
+      console.log('📧 Login result received:', result);
+      
+      if (result && result.success) {
+        console.log('✅ Login successful, navigating to dashboard...');
+        
+        // Clear form data
+        setFormData({ email: '', password: '' });
+        
+        // Navigate to dashboard with replace to prevent back button issues
+        navigate('/dashboard', { replace: true });
+        
       } else {
+        console.log('❌ Login failed:', result);
+        
         // Check if it's a verification issue
-        if (result.requiresVerification) {
+        if (result && result.requiresVerification) {
+          console.log('⚠️ Doctor verification required');
           setVerificationDialog({
             open: true,
-            message: result.error,
-            status: result.verificationStatus,
+            message: result.error || 'Doctor verification required',
+            status: result.verificationStatus || 'pending',
             isDoctor: true
           });
         } else {
-          setError(result.error);
+          const errorMessage = result?.error || 'Login failed. Please check your credentials.';
+          setLocalError(errorMessage);
         }
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
+      console.error('❌ Login error caught:', err);
+      setLocalError('Unable to connect to server. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -125,6 +157,10 @@ const Login = () => {
         return 'warning';
     }
   };
+
+  // Show current error (local or from auth context)
+  const currentError = error || authError;
+  const isLoading = loading || authLoading;
 
   return (
     <>
@@ -202,6 +238,9 @@ const Login = () => {
                 src="/icons/icon-192x192.png" 
                 alt="Healthcare" 
                 style={{ width: 120, height: 120, opacity: 0.8 }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
               />
             </Box>
           </Box>
@@ -220,9 +259,12 @@ const Login = () => {
             <form onSubmit={handleSubmit}>
               <Box sx={{ mt: 3 }}>
                 {/* Error alert */}
-                {error && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
+                {currentError && (
+                  <Alert severity="error" sx={{ mb: 2 }} onClose={() => {
+                    setLocalError('');
+                    if (setError) setError('');
+                  }}>
+                    {currentError}
                   </Alert>
                 )}
 
@@ -236,6 +278,7 @@ const Login = () => {
                   onChange={handleChange}
                   required
                   margin="normal"
+                  disabled={isLoading}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -256,6 +299,7 @@ const Login = () => {
                   onChange={handleChange}
                   required
                   margin="normal"
+                  disabled={isLoading}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -267,6 +311,7 @@ const Login = () => {
                         <IconButton
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
+                          disabled={isLoading}
                         >
                           {showPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
@@ -289,16 +334,24 @@ const Login = () => {
                   fullWidth
                   variant="contained"
                   size="large"
-                  disabled={loading}
+                  disabled={isLoading}
                   sx={{ 
                     py: 1.5, 
                     fontSize: '1.1rem',
                     fontWeight: 'bold',
                     textTransform: 'uppercase',
-                    borderRadius: 3
+                    borderRadius: 3,
+                    position: 'relative'
                   }}
                 >
-                  {loading ? 'Signing In...' : t('auth.secure_login')}
+                  {isLoading ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={20} color="inherit" />
+                      Signing In...
+                    </Box>
+                  ) : (
+                    t('auth.secure_login')
+                  )}
                 </Button>
 
                 {/* Register link */}

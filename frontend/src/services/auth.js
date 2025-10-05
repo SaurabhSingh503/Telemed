@@ -7,11 +7,12 @@ export const authService = {
   // Login user with email and password
   login: async (email, password) => {
     try {
+      console.log('🔧 AuthService login called:', email);
       const response = await apiEndpoints.login({ email, password });
-      console.log('Login response:', response.data); // Debug log
+      console.log('🔧 AuthService login response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Login error:', error.response?.data || error);
+      console.error('🔧 AuthService login error:', error);
       throw error;
     }
   },
@@ -19,11 +20,12 @@ export const authService = {
   // Register new user
   register: async (userData) => {
     try {
+      console.log('🔧 AuthService register called:', userData.email);
       const response = await apiEndpoints.register(userData);
-      console.log('Register response:', response.data); // Debug log
+      console.log('🔧 AuthService register response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Register error:', error.response?.data || error);
+      console.error('🔧 AuthService register error:', error);
       throw error;
     }
   },
@@ -31,27 +33,33 @@ export const authService = {
   // Get current user profile
   getProfile: async () => {
     try {
+      console.log('🔧 AuthService getProfile called');
       const response = await apiEndpoints.getProfile();
-      console.log('Profile response:', response.data); // Debug log
+      console.log('🔧 AuthService getProfile response:', response.data);
       return response.data.user;
     } catch (error) {
-      console.error('Profile error:', error.response?.data || error);
+      console.error('🔧 AuthService getProfile error:', error);
       throw error;
     }
   },
 
   // Check if user is authenticated
   isAuthenticated: () => {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    console.log('🔧 AuthService isAuthenticated:', !!token);
+    return !!token;
   },
 
   // Get stored token
   getToken: () => {
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    console.log('🔧 AuthService getToken:', token ? 'Found' : 'Not found');
+    return token;
   },
 
   // Remove token
   clearToken: () => {
+    console.log('🔧 AuthService clearToken called');
     localStorage.removeItem('token');
   }
 };

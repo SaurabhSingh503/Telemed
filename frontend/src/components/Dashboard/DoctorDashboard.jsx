@@ -39,7 +39,7 @@ import {
   VerifiedUser as VerifiedIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'; // ALREADY IMPORTED
 import { useAuth } from '../../context/AuthContext';
 import { apiEndpoints } from '../../services/api';
 
@@ -112,21 +112,21 @@ const DoctorDashboard = () => {
     switch (status) {
       case 'pending':
         return {
-          chip: <Chip icon={<PendingIcon />} label="Verification Pending" color="warning" />,
+          chip: <Chip icon={<PendingIcon />} label={t('doctor.verification_pending')} color="warning" />,
           message: 'Your documents are being reviewed by our medical verification team.',
           severity: 'info',
           action: null
         };
       case 'approved':
         return {
-          chip: <Chip icon={<VerifiedIcon />} label="Verified Doctor" color="success" />,
+          chip: <Chip icon={<VerifiedIcon />} label={t('doctor.verified_doctor')} color="success" />,
           message: 'Congratulations! Your medical credentials have been verified.',
           severity: 'success',
           action: null
         };
       case 'rejected':
         return {
-          chip: <Chip icon={<CancelIcon />} label="Verification Rejected" color="error" />,
+          chip: <Chip icon={<CancelIcon />} label={t('doctor.verification_rejected')} color="error" />,
           message: `Verification was rejected: ${verificationStatus?.rejectionReason}`,
           severity: 'error',
           action: (
@@ -137,13 +137,13 @@ const DoctorDashboard = () => {
               onClick={() => navigate('/doctor-verification')}
               sx={{ mt: 2 }}
             >
-              Resubmit Documents
+              {t('doctor.resubmit_documents')}
             </Button>
           )
         };
       default:
         return {
-          chip: <Chip icon={<WarningIcon />} label="Verification Required" color="error" />,
+          chip: <Chip icon={<WarningIcon />} label={t('doctor.verification_required')} color="error" />,
           message: 'Please complete your medical credential verification to start consultations.',
           severity: 'warning',
           action: (
@@ -154,42 +154,42 @@ const DoctorDashboard = () => {
               onClick={() => navigate('/doctor-verification')}
               sx={{ mt: 2 }}
             >
-              Complete Verification
+              {t('doctor.complete_verification')}
             </Button>
           )
         };
     }
   };
 
-  // Quick action cards for doctors
+  // Quick action cards for doctors - WITH TRANSLATIONS
   const quickActions = [
     {
-      title: 'Start Consultation',
-      description: 'Begin video consultation',
+      title: t('actions.start_consultation'),
+      description: t('descriptions.begin_video_consultation'),
       icon: <VideoIcon sx={{ fontSize: 40 }} />,
       color: '#2196f3',
       action: () => navigate('/video-call/doctor-consultation'),
       disabled: !user?.isVerified
     },
     {
-      title: 'Patient Records',
-      description: 'View and manage patient records',
+      title: t('actions.patient_records'),
+      description: t('descriptions.manage_patient_records'),
       icon: <RecordsIcon sx={{ fontSize: 40 }} />,
       color: '#4caf50',
       action: () => {/* Navigate to records */},
       disabled: !user?.isVerified
     },
     {
-      title: 'Schedule Management',
-      description: 'Manage appointments',
+      title: t('actions.schedule_management'),
+      description: t('descriptions.manage_appointments'),
       icon: <ScheduleIcon sx={{ fontSize: 40 }} />,
       color: '#ff9800',
       action: () => {/* Navigate to schedule */},
       disabled: !user?.isVerified
     },
     {
-      title: 'Add Health Record',
-      description: 'Create new patient record',
+      title: t('actions.add_health_record'),
+      description: t('descriptions.create_patient_record'),
       icon: <AddIcon sx={{ fontSize: 40 }} />,
       color: '#9c27b0',
       action: () => {/* Open record form */},
@@ -202,7 +202,7 @@ const DoctorDashboard = () => {
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <LinearProgress />
         <Typography variant="h6" textAlign="center" sx={{ mt: 2 }}>
-          Loading dashboard...
+          {t('dashboard.loading_dashboard')}
         </Typography>
       </Container>
     );
@@ -219,10 +219,10 @@ const DoctorDashboard = () => {
           <Box textAlign="center">
             <WarningIcon sx={{ fontSize: 80, color: 'warning.main', mb: 2 }} />
             <Typography variant="h4" gutterBottom>
-              Medical Verification Required
+              {t('doctor.medical_verification_required')}
             </Typography>
             <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-              Welcome Dr. {user?.firstName}! To ensure patient safety and maintain the highest standards 
+              {t('dashboard.welcome')} Dr. {user?.firstName}! To ensure patient safety and maintain the highest standards 
               of healthcare, all doctors must complete medical credential verification.
             </Typography>
 
@@ -240,27 +240,27 @@ const DoctorDashboard = () => {
 
             <Box sx={{ mt: 4, p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
               <Typography variant="h6" gutterBottom>
-                📋 Verification Requirements
+                📋 {t('doctor.verification_requirements')}
               </Typography>
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    ✅ Medical License Certificate
+                    ✅ {t('doctor.medical_license')}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    ✅ Degree Certificates (MBBS/MD/MS)
+                    ✅ {t('doctor.degree_certificates')}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    ✅ Government ID Proof
+                    ✅ {t('doctor.government_id')}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="body2">
-                    ✅ Hospital Affiliation (if any)
+                    ✅ {t('doctor.hospital_affiliation')}
                   </Typography>
                 </Grid>
               </Grid>
@@ -290,11 +290,11 @@ const DoctorDashboard = () => {
             <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
               <Chip 
                 icon={<VerifiedIcon />}
-                label="Verified Doctor"
+                label={t('doctor.verified_doctor')}
                 sx={{ bgcolor: 'rgba(76,175,80,0.9)', color: 'white' }}
               />
               <Chip 
-                label={`Doctor ID: DR-${user?.id.toString().padStart(4, '0')}`}
+                label={`${t('dashboard.doctor_id')}: DR-${user?.id.toString().padStart(4, '0')}`}
                 sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }}
               />
             </Box>
@@ -312,7 +312,7 @@ const DoctorDashboard = () => {
                 {stats.todayAppointments}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Today's Appointments
+                {t('stats.today_appointments')}
               </Typography>
             </CardContent>
           </Card>
@@ -325,7 +325,7 @@ const DoctorDashboard = () => {
                 {stats.totalPatients}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Total Patients
+                {t('stats.total_patients')}
               </Typography>
             </CardContent>
           </Card>
@@ -338,7 +338,7 @@ const DoctorDashboard = () => {
                 {stats.completedConsultations}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Completed Consultations
+                {t('stats.completed_consultations')}
               </Typography>
             </CardContent>
           </Card>
@@ -350,7 +350,7 @@ const DoctorDashboard = () => {
         <Grid item xs={12}>
           <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <HospitalIcon color="primary" />
-            Quick Actions
+            {t('dashboard.quick_actions')}
           </Typography>
           <Grid container spacing={3}>
             {quickActions.map((action, index) => (
@@ -381,7 +381,7 @@ const DoctorDashboard = () => {
                     </Typography>
                     {action.disabled && (
                       <Chip 
-                        label="Verification Required" 
+                        label={t('doctor.verification_required')} 
                         size="small" 
                         color="warning"
                         sx={{ mt: 1 }}
@@ -399,7 +399,7 @@ const DoctorDashboard = () => {
           <Paper elevation={3} sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <ScheduleIcon color="primary" />
-              Today's Appointments
+              {t('dashboard.today_appointments')}
             </Typography>
             <Divider sx={{ mb: 2 }} />
             
@@ -407,7 +407,7 @@ const DoctorDashboard = () => {
               new Date(apt.appointmentDate).toDateString() === new Date().toDateString()
             ).length === 0 ? (
               <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                No appointments scheduled for today
+                {t('dashboard.no_appointments_today')}
               </Typography>
             ) : (
               <List>
@@ -428,7 +428,7 @@ const DoctorDashboard = () => {
                       secondary={
                         <Box>
                           <Typography variant="body2" color="text.secondary">
-                            {appointment.reason || 'General Consultation'}
+                            {appointment.reason || t('dashboard.general_consultation')}
                           </Typography>
                           <Chip
                             icon={<TimeIcon />}
@@ -453,7 +453,7 @@ const DoctorDashboard = () => {
             )}
             
             <Button fullWidth variant="outlined" sx={{ mt: 2 }}>
-              View All Appointments
+              {t('dashboard.view_all_appointments')}
             </Button>
           </Paper>
         </Grid>
@@ -463,13 +463,13 @@ const DoctorDashboard = () => {
           <Paper elevation={3} sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <RecordsIcon color="primary" />
-              Recent Patient Records
+              {t('dashboard.recent_patient_records')}
             </Typography>
             <Divider sx={{ mb: 2 }} />
             
             {healthRecords.length === 0 ? (
               <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                No health records found
+                {t('dashboard.no_records')}
               </Typography>
             ) : (
               <List>
@@ -479,7 +479,7 @@ const DoctorDashboard = () => {
                       <CheckIcon color="success" />
                     </ListItemIcon>
                     <ListItemText
-                      primary={record.diagnosis || 'General Consultation'}
+                      primary={record.diagnosis || t('dashboard.general_consultation')}
                       secondary={
                         <Typography variant="body2" color="text.secondary">
                           {new Date(record.visitDate).toLocaleDateString()} - 
@@ -493,7 +493,7 @@ const DoctorDashboard = () => {
             )}
             
             <Button fullWidth variant="outlined" sx={{ mt: 2 }}>
-              View All Records
+              {t('dashboard.view_all_records')}
             </Button>
           </Paper>
         </Grid>

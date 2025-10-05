@@ -1,5 +1,6 @@
-// Appointment model for scheduling doctor-patient meetings
-// Manages appointment status and timing
+/* eslint-disable */
+// Appointment model for managing doctor-patient consultations
+// Handles appointment booking, scheduling, and status tracking
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
@@ -25,30 +26,100 @@ const Appointment = sequelize.define('Appointment', {
       key: 'id'
     }
   },
-  appointmentDate: {
-    type: DataTypes.DATE,
-    allowNull: false
-  },
-  status: {
-    type: DataTypes.ENUM('scheduled', 'completed', 'cancelled', 'in-progress'),
-    defaultValue: 'scheduled'
-  },
-  type: {
-    type: DataTypes.ENUM('video', 'in-person'),
-    defaultValue: 'video'
-  },
   reason: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'General Consultation'
+  },
+  symptoms: {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  meetingRoomId: {
+  preferredDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: false
+  },
+  preferredTime: {
     type: DataTypes.STRING,
-    allowNull: true // For Jitsi room ID
+    allowNull: true
+  },
+  appointmentDate: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'pending',
+    validate: {
+      isIn: [['pending', 'confirmed', 'scheduled', 'completed', 'cancelled', 'rejected', 'in-progress']]
+    }
+  },
+  urgency: {
+    type: DataTypes.STRING,
+    defaultValue: 'normal',
+    validate: {
+      isIn: [['low', 'normal', 'high', 'emergency']]
+    }
+  },
+  type: {
+    type: DataTypes.STRING,
+    defaultValue: 'video',
+    validate: {
+      isIn: [['video', 'in-person', 'phone']]
+    }
   },
   duration: {
-    type: DataTypes.INTEGER, // in minutes
-    defaultValue: 30
+    type: DataTypes.INTEGER,
+    defaultValue: 30 // Duration in minutes
+  },
+  meetingRoomId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+  },
+  consultationFee: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true
+  },
+  notes: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   }
+}, {
+  tableName: 'appointments',
+  timestamps: true,
+  indexes: [
+    {
+      fields: ['patientId']
+    },
+    {
+      fields: ['doctorId']
+    },
+    {
+      fields: ['status']
+    },
+    {
+      fields: ['appointmentDate']
+    }
+  ]
 });
+Appointment.associate = (models) => {
+  // Appointment belongs to Patient
+  Appointment.belongsTo(models.User, {
+    foreignKey: 'patientId',
+    as: 'Patient'
+  });
+
+  // Appointment belongs to Doctor
+  Appointment.belongsTo(models.User, {
+    foreignKey: 'doctorId',
+    as: 'Doctor'
+  });
+};
 
 module.exports = Appointment;

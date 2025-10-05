@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "टेलीमेड",
-    "subtitle": "स्वास्थ्य के लिए आपका सुरक्षित मार्ग"
+    "subtitle": "आपके स्वास्थ्य का सुरक्षित मार्ग",
+    "join_title": "टेलीमेड में शामिल हों"
   },
   "navigation": {
     "home": "होम",
@@ -9,18 +10,18 @@
     "appointments": "अपॉइंटमेंट",
     "health_records": "स्वास्थ्य रिकॉर्ड",
     "symptom_checker": "लक्षण जांचकर्ता",
-    "pharmacies": "दवाखाना",
-    "profile": "प्रोफाइल",
-    "logout": "लॉगआउट"
+    "pharmacies": "दवाखाने",
+    "profile": "प्रोफ़ाइल",
+    "logout": "लॉग आउट"
   },
   "auth": {
-    "login": "लॉगिन",
-    "register": "पंजीकरण",
+    "login": "लॉग इन",
+    "register": "रजिस्टर",
     "email": "ईमेल पता",
     "password": "पासवर्ड",
     "first_name": "पहला नाम",
     "last_name": "अंतिम नाम",
-    "phone": "फ़ोन नंबर",
+    "phone": "फोन नंबर",
     "date_of_birth": "जन्म तिथि",
     "gender": "लिंग",
     "role": "भूमिका",
@@ -30,20 +31,90 @@
     "secure_login": "सुरक्षित लॉगिन",
     "create_account": "अपना स्वास्थ्य खाता बनाएं",
     "sign_up": "साइन अप",
-    "already_have_account": "पहले से खाता है? लॉग इन",
-    "dont_have_account": "खाता नहीं है? साइन अप",
+    "already_have_account": "पहले से खाता है? लॉग इन करें",
+    "dont_have_account": "खाता नहीं है? साइन अप करें",
     "forgot_password": "पासवर्ड भूल गए?"
   },
   "dashboard": {
     "welcome": "स्वागत",
-    "patient_dashboard": "मरीज़ डैशबोर्ड",
+    "patient_dashboard": "रोगी डैशबोर्ड",
     "doctor_dashboard": "डॉक्टर डैशबोर्ड",
     "book_appointment": "अपॉइंटमेंट बुक करें",
     "online_consultation": "ऑनलाइन परामर्श",
     "view_records": "स्वास्थ्य रिकॉर्ड देखें",
     "talk_to_doctor": "डॉक्टर से बात करें",
     "ai_chatbot": "एआई चैटबॉट",
+    "health_records": "स्वास्थ्य रिकॉर्ड",
+    "find_pharmacies": "दवाखाने खोजें",
+    "pharmacy_locator": "दवाखाना खोजक",
+    "video_consultation": "वीडियो परामर्श",
+    "start_consultation": "परामर्श शुरू करें",
+    "patient_records": "रोगी रिकॉर्ड",
+    "schedule_management": "शेड्यूल प्रबंधन",
+    "add_health_record": "स्वास्थ्य रिकॉर्ड जोड़ें",
     "upcoming_appointments": "आगामी अपॉइंटमेंट",
-    "recent_records": "हाल के स्वास्थ्य रिकॉर्ड"
+    "recent_appointments": "हाल की अपॉइंटमेंट",
+    "recent_records": "हाल के स्वास्थ्य रिकॉर्ड",
+    "recent_patient_records": "हाल के रोगी रिकॉर्ड",
+    "today_appointments": "आज की अपॉइंटमेंट",
+    "quick_actions": "त्वरित कार्य",
+    "your_health_priority": "आपका स्वास्थ्य हमारी प्राथमिकता है",
+    "general_consultation": "सामान्य परामर्श",
+    "no_appointments": "कोई अपॉइंटमेंट नहीं मिली",
+    "no_records": "कोई स्वास्थ्य रिकॉर्ड नहीं मिला",
+    "no_appointments_today": "आज के लिए कोई अपॉइंटमेंट नहीं",
+    "view_all_appointments": "सभी अपॉइंटमेंट देखें",
+    "view_all_records": "सभी रिकॉर्ड देखें",
+    "loading_dashboard": "डैशबोर्ड लोड हो रहा है...",
+    "patient_id": "रोगी आईडी",
+    "doctor_id": "डॉक्टर आईडी"
+  },
+  "doctor": {
+    "verified_doctor": "सत्यापित डॉक्टर",
+    "medical_verification_required": "चिकित्सा सत्यापन आवश्यक",
+    "verification_pending": "सत्यापन लंबित",
+    "verification_rejected": "सत्यापन अस्वीकृत",
+    "verification_required": "सत्यापन आवश्यक",
+    "complete_verification": "सत्यापन पूरा करें",
+    "resubmit_documents": "दस्तावेज़ फिर से जमा करें",
+    "verification_requirements": "सत्यापन आवश्यकताएं",
+    "medical_license": "मेडिकल लाइसेंस प्रमाणपत्र",
+    "degree_certificates": "डिग्री प्रमाणपत्र (MBBS/MD/MS)",
+    "government_id": "सरकारी आईडी प्रूफ",
+    "hospital_affiliation": "अस्पताल से जुड़ाव (यदि कोई हो)"
+  },
+  "actions": {
+    "talk_to_doctor": "डॉक्टर से बात करें",
+    "ai_chatbot": "एआई चैटबॉट",
+    "health_records": "स्वास्थ्य रिकॉर्ड",
+    "find_pharmacies": "दवाखाने खोजें",
+    "start_consultation": "परामर्श शुरू करें",
+    "patient_records": "रोगी रिकॉर्ड",
+    "schedule_management": "शेड्यूल प्रबंधन",
+    "add_health_record": "स्वास्थ्य रिकॉर्ड जोड़ें"
+  },
+  "descriptions": {
+    "video_consultation": "स्वास्थ्यकर्मियों के साथ वीडियो परामर्श",
+    "instant_health_guidance": "तत्काल स्वास्थ्य मार्गदर्शन प्राप्त करें",
+    "view_medical_history": "अपना चिकित्सा इतिहास देखें",
+    "locate_pharmacies": "आस-पास के दवाखाने खोजें",
+    "begin_video_consultation": "वीडियो परामर्श शुरू करें",
+    "manage_patient_records": "रोगी रिकॉर्ड देखें और प्रबंधित करें",
+    "manage_appointments": "अपॉइंटमेंट प्रबंधित करें",
+    "create_patient_record": "नया रोगी रिकॉर्ड बनाएं"
+  },
+  "stats": {
+    "today_appointments": "आज की अपॉइंटमेंट",
+    "total_patients": "कुल रोगी",
+    "completed_consultations": "पूर्ण परामर्श"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफलता",
+    "cancel": "रद्द करें",
+    "save": "सहेजें",
+    "submit": "जमा करें",
+    "close": "बंद करें"
   }
 }

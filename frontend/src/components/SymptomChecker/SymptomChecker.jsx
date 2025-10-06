@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 // AI-powered symptom checker component
 // Provides health guidance based on symptoms
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Paper,
@@ -22,7 +22,9 @@ import {
   LinearProgress,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  Autocomplete,
+  Tooltip
 } from '@mui/material';
 import {
   Psychology as BrainIcon,
@@ -32,10 +34,14 @@ import {
   CheckCircle as CheckIcon,
   Info as InfoIcon,
   ExpandMore as ExpandMoreIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
+  Search as SearchIcon,
+  RefreshIcon,
+  TipsAndUpdates as TipsIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { apiEndpoints } from '../../services/api';
+import SymptomResult from './SymptomResult';
 
 const SymptomChecker = () => {
   const { t } = useTranslation();
@@ -44,6 +50,8 @@ const SymptomChecker = () => {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [availableSymptoms, setAvailableSymptoms] = useState([]);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
 
   // Common symptoms for quick selection
   const commonSymptoms = [
@@ -52,17 +60,36 @@ const SymptomChecker = () => {
     'stomach pain', 'muscle aches', 'runny nose', 'loss of appetite'
   ];
 
+  // Load available symptoms on component mount
+  useEffect(() => {
+    loadAvailableSymptoms();
+  }, []);
+
+  const loadAvailableSymptoms = async () => {
+    try {
+      const response = await apiEndpoints.getAllSymptoms();
+      if (response.data.success) {
+        setAvailableSymptoms(response.data.symptoms || []);
+      }
+    } catch (error) {
+      console.error('Failed to load symptoms:', error);
+    }
+  };
+
   const addSymptom = (symptom) => {
-    if (symptom && !symptoms.includes(symptom.toLowerCase())) {
-      setSymptoms([...symptoms, symptom.toLowerCase()]);
+    if (symptom && !symptoms.includes(symptom.toLowerCase().trim())) {
+      const normalizedSymptom = symptom.toLowerCase().trim();
+      setSymptoms([...symptoms, normalizedSymptom]);
       setNewSymptom('');
       setError(''); // Clear any existing errors
+      console.log('Added symptom:', normalizedSymptom);
     }
   };
 
   const removeSymptom = (symptom) => {
     setSymptoms(symptoms.filter(s => s !== symptom));
     setError(''); // Clear any existing errors
+    console.log('Removed symptom:', symptom);
   };
 
   const analyzeSymptoms = async () => {
@@ -71,23 +98,35 @@ const SymptomChecker = () => {
       return;
     }
 
+    console.log('🔍 Starting symptom analysis for:', symptoms);
     setLoading(true);
     setError('');
 
     try {
       const response = await apiEndpoints.checkSymptoms(symptoms);
+      console.log('📊 Analysis response:', response.data);
       
       if (response.data && response.data.success) {
         setResults(response.data.data);
+        console.log('✅ Analysis successful');
       } else {
+        // Handle legacy response format
         setResults(response.data);
+        console.log('✅ Analysis successful (legacy format)');
       }
     } catch (err) {
+      console.error('❌ Symptom analysis error:', err);
       setError('Failed to analyze symptoms. Please try again.');
-      console.error('Symptom analysis error:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetAnalysis = () => {
+    setResults(null);
+    setSymptoms([]);
+    setError('');
+    setNewSymptom('');
   };
 
   const getSeverityIcon = (severity) => {
@@ -107,6 +146,19 @@ const SymptomChecker = () => {
     return 'success';
   };
 
+  // If we have results, show the result component
+  if (results) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <SymptomResult 
+          results={results} 
+          onNewAnalysis={resetAnalysis}
+          onBookAppointment={() => window.location.href = '/dashboard'}
+        />
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Header */}
@@ -124,6 +176,14 @@ const SymptomChecker = () => {
         </Box>
       </Paper>
 
+      {/* Instructions */}
+      <Alert severity="info" sx={{ mb: 3 }}>
+        <Typography variant="body2">
+          <strong>How it works:</strong> Add your symptoms below and click "Analyze" to get preliminary health guidance. 
+          Our AI will analyze your symptoms and provide recommendations based on medical knowledge.
+        </Typography>
+      </Alert>
+
       <Grid container spacing={4}>
         {/* Symptom input */}
         <Grid item xs={12} md={6}>
@@ -132,28 +192,47 @@ const SymptomChecker = () => {
               Select Your Symptoms
             </Typography>
 
-            {/* Add custom symptom */}
-            <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
-              <TextField
-                fullWidth
-                label="Add symptom"
+            {/* Add custom symptom with autocomplete */}
+            <Box sx={{ mb: 3 }}>
+              <Autocomplete
+                options={availableSymptoms}
                 value={newSymptom}
-                onChange={(e) => setNewSymptom(e.target.value)}
+                onInputChange={(event, newInputValue) => {
+                  setNewSymptom(newInputValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Search and add symptoms"
+                    placeholder="e.g., headache, fever, cough"
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {params.InputProps.endAdornment}
+                          <SearchIcon color="action" />
+                        </>
+                      ),
+                    }}
+                  />
+                )}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     addSymptom(newSymptom);
                   }
                 }}
-                placeholder="e.g., headache, fever, cough"
+                freeSolo
+                clearOnSelect
               />
               <Button
                 variant="contained"
                 onClick={() => addSymptom(newSymptom)}
                 disabled={!newSymptom.trim()}
-                sx={{ minWidth: 100 }}
+                sx={{ mt: 2, minWidth: 120 }}
+                startIcon={<AddIcon />}
               >
-                <AddIcon />
+                Add Symptom
               </Button>
             </Box>
 
@@ -163,20 +242,21 @@ const SymptomChecker = () => {
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
               {commonSymptoms.map((symptom) => (
-                <Chip
-                  key={symptom}
-                  label={symptom}
-                  onClick={() => addSymptom(symptom)}
-                  disabled={symptoms.includes(symptom)}
-                  color="primary"
-                  variant="outlined"
-                  clickable
-                  sx={{ 
-                    '&:hover': { 
-                      backgroundColor: symptoms.includes(symptom) ? 'action.disabled' : 'primary.light' 
-                    } 
-                  }}
-                />
+                <Tooltip key={symptom} title={`Add ${symptom} to your symptom list`}>
+                  <Chip
+                    label={symptom}
+                    onClick={() => addSymptom(symptom)}
+                    disabled={symptoms.includes(symptom)}
+                    color="primary"
+                    variant="outlined"
+                    clickable
+                    sx={{ 
+                      '&:hover': { 
+                        backgroundColor: symptoms.includes(symptom) ? 'action.disabled' : 'primary.light' 
+                      } 
+                    }}
+                  />
+                </Tooltip>
               ))}
             </Box>
 
@@ -184,7 +264,18 @@ const SymptomChecker = () => {
             <Typography variant="subtitle2" gutterBottom>
               Selected symptoms ({symptoms.length}):
             </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3, minHeight: 40 }}>
+            <Paper 
+              variant="outlined" 
+              sx={{ 
+                p: 2, 
+                minHeight: 60,
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 1,
+                alignItems: symptoms.length === 0 ? 'center' : 'flex-start',
+                justifyContent: symptoms.length === 0 ? 'center' : 'flex-start'
+              }}
+            >
               {symptoms.length === 0 ? (
                 <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
                   No symptoms selected
@@ -198,22 +289,36 @@ const SymptomChecker = () => {
                     deleteIcon={<CloseIcon />}
                     color="secondary"
                     variant="filled"
+                    sx={{ m: 0.5 }}
                   />
                 ))
               )}
-            </Box>
+            </Paper>
 
-            {/* Analyze button */}
-            <Button
-              fullWidth
-              variant="contained"
-              size="large"
-              onClick={analyzeSymptoms}
-              disabled={loading || symptoms.length === 0}
-              sx={{ mt: 2, py: 1.5 }}
-            >
-              {loading ? 'Analyzing Symptoms...' : `Analyze ${symptoms.length} Symptom${symptoms.length !== 1 ? 's' : ''}`}
-            </Button>
+            {/* Action buttons */}
+            <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={analyzeSymptoms}
+                disabled={loading || symptoms.length === 0}
+                sx={{ flex: 1, py: 1.5 }}
+                startIcon={loading ? <LinearProgress /> : <BrainIcon />}
+              >
+                {loading ? 'Analyzing...' : `Analyze ${symptoms.length} Symptom${symptoms.length !== 1 ? 's' : ''}`}
+              </Button>
+              
+              {symptoms.length > 0 && (
+                <Button
+                  variant="outlined"
+                  onClick={() => setSymptoms([])}
+                  disabled={loading}
+                  startIcon={<CloseIcon />}
+                >
+                  Clear All
+                </Button>
+              )}
+            </Box>
 
             {/* Error display */}
             {error && (
@@ -224,140 +329,109 @@ const SymptomChecker = () => {
           </Paper>
         </Grid>
 
-        {/* Results */}
+        {/* Information panel */}
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ p: 3, minHeight: 400 }}>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
-              Analysis Results
+              How Our AI Symptom Checker Works
             </Typography>
 
             {loading && (
-              <Box sx={{ mt: 2 }}>
+              <Box sx={{ mt: 2, mb: 3 }}>
                 <Typography variant="body2" gutterBottom>
-                  Analyzing your symptoms...
+                  Analyzing your symptoms using AI...
                 </Typography>
-                <LinearProgress />
+                <LinearProgress sx={{ mb: 2 }} />
+                <Typography variant="caption" color="text.secondary">
+                  Processing {symptoms.length} symptom{symptoms.length !== 1 ? 's' : ''} against medical database
+                </Typography>
               </Box>
             )}
 
-            {results ? (
+            {!loading && (
               <Box>
-                {/* Analysis summary */}
-                <Alert severity="info" sx={{ mb: 2 }}>
-                  <Typography variant="body2">
-                    <strong>Analysis Summary:</strong> {results.matchedSymptoms?.length || 0} of {results.totalSymptoms || 0} symptoms matched our database.
-                    {results.confidence && ` Confidence: ${results.confidence}%`}
-                  </Typography>
-                </Alert>
-
-                {/* Possible conditions */}
-                <Typography variant="subtitle1" fontWeight="bold" gutterBottom sx={{ mt: 2 }}>
-                  Possible Conditions:
-                </Typography>
-                
-                {results.possibleConditions && results.possibleConditions.length > 0 ? (
-                  <List sx={{ mb: 2 }}>
-                    {results.possibleConditions.map((condition, index) => (
-                      <ListItem key={index} divider sx={{ px: 0 }}>
-                        <ListItemIcon>
-                          <HealthIcon 
-                            color={getSeverityColor(condition.confidence)}
-                          />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Typography variant="subtitle2" fontWeight="bold">
-                                {condition.condition}
-                              </Typography>
-                              <Chip
-                                label={`${condition.confidence}%`}
-                                size="small"
-                                color={getSeverityColor(condition.confidence)}
-                                variant="outlined"
-                              />
-                            </Box>
-                          }
-                          secondary={`Based on ${condition.matchingSymptoms || 'multiple'} matching symptoms`}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Typography color="text.secondary" sx={{ mb: 2 }}>
-                    No specific conditions identified based on the symptoms provided.
-                  </Typography>
-                )}
-
-                {/* Recommendations */}
-                {results.recommendations && results.recommendations.length > 0 && (
-                  <Accordion sx={{ mb: 2 }}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        📋 Recommendations
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <List>
-                        {results.recommendations.map((rec, index) => (
-                          <ListItem key={index} sx={{ px: 0 }}>
-                            <ListItemIcon>
-                              {getSeverityIcon(rec.type === 'urgent' ? 'severe' : rec.type === 'important' ? 'moderate' : 'mild')}
-                            </ListItemIcon>
-                            <ListItemText
-                              primary={rec.message}
-                              secondary={rec.action}
-                            />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
+                <List>
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemIcon>
+                      <BrainIcon color="primary" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Advanced AI Analysis"
+                      secondary="Uses machine learning algorithms to analyze symptom patterns"
+                    />
+                  </ListItem>
+                  
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemIcon>
+                      <HealthIcon color="success" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Medical Database"
+                      secondary="Compares symptoms against comprehensive medical knowledge base"
+                    />
+                  </ListItem>
+                  
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemIcon>
+                      <TipsIcon color="info" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Personalized Recommendations"
+                      secondary="Provides tailored health guidance based on symptom severity"
+                    />
+                  </ListItem>
+                  
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemIcon>
+                      <WarningIcon color="warning" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Professional Guidance"
+                      secondary="Recommends when to seek immediate or routine medical care"
+                    />
+                  </ListItem>
+                </List>
 
                 <Divider sx={{ my: 2 }} />
 
-                {/* Disclaimer */}
-                <Alert severity="warning" sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                  📋 Tips for Better Analysis:
+                </Typography>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  • Be specific about your symptoms (e.g., "severe headache" vs "headache")
+                </Typography>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  • Include duration information when possible
+                </Typography>
+                <Typography variant="body2" color="text.secondary" paragraph>
+                  • Add multiple related symptoms for more accurate results
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  • Consider recent activities or changes in your routine
+                </Typography>
+
+                <Alert severity="info" sx={{ mt: 3 }}>
                   <Typography variant="body2">
-                    <strong>Important Disclaimer:</strong> {results.disclaimer || 'This analysis is for informational purposes only. Please consult a healthcare professional for proper diagnosis and treatment.'}
+                    <strong>Ready to analyze?</strong> Add at least one symptom and click the "Analyze" button to get started.
                   </Typography>
                 </Alert>
-
-                {/* Recommendation */}
-                <Card sx={{ mt: 2, bgcolor: 'primary.light', color: 'primary.contrastText' }}>
-                  <CardContent>
-                    <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                      💡 Next Steps
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 2 }}>
-                      For professional medical advice and proper treatment, schedule a consultation with our qualified healthcare providers.
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      size="small"
-                      onClick={() => window.location.href = '/dashboard'}
-                    >
-                      Book Medical Consultation
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Box>
-            ) : (
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <BrainIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-                <Typography variant="body1" color="text.secondary">
-                  Add your symptoms and click "Analyze" to get health insights
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Our AI will analyze your symptoms and provide preliminary health guidance
-                </Typography>
               </Box>
             )}
           </Paper>
         </Grid>
       </Grid>
+
+      {/* Disclaimer */}
+      <Alert severity="warning" sx={{ mt: 4 }}>
+        <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+          Important Medical Disclaimer
+        </Typography>
+        <Typography variant="body2">
+          This AI symptom checker is for informational purposes only and should not replace professional medical advice, 
+          diagnosis, or treatment. Always consult with a qualified healthcare provider for any health concerns or before 
+          making any medical decisions. If you're experiencing a medical emergency, call emergency services immediately.
+        </Typography>
+      </Alert>
     </Container>
   );
 };

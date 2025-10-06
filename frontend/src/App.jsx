@@ -19,14 +19,9 @@ import Navbar from './components/Layout/Navbar';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import PharmacyFinder from './components/Pharmacy/PharmacyFinder';
-<Route path="/pharmacies" element={
-  <ProtectedRoute>
-    <PharmacyFinder />
-  </ProtectedRoute>
-} />
 import PharmacyTest from './components/Debug/PharmacyTest';
+import AdminDashboard from './components/Admin/AdminDashboard';
 
-<Route path="/test-pharmacy" element={<PharmacyTest />} />
 function App() {
   const { user, loading } = useAuth();
 
@@ -71,12 +66,28 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/pharmacies" element={
+            <ProtectedRoute>
+              <PharmacyFinder />
+            </ProtectedRoute>
+          } />
+
           {/* Doctor verification route */}
           <Route path="/doctor-verification" element={
             <ProtectedRoute>
               <DoctorVerificationForm />
             </ProtectedRoute>
           } />
+
+          {/* Admin routes */}
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+
+          {/* Debug/Test routes */}
+          <Route path="/test-pharmacy" element={<PharmacyTest />} />
 
           {/* Default redirect */}
           <Route 

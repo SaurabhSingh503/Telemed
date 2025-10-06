@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Symptom checker controller with AI-powered analysis
 // Provides health guidance based on symptom patterns
 const symptomDatabase = {
@@ -55,6 +56,21 @@ const symptomDatabase = {
     { condition: 'Gastritis', probability: 0.6, severity: 'moderate' },
     { condition: 'Food Poisoning', probability: 0.5, severity: 'moderate' },
     { condition: 'Appendicitis', probability: 0.2, severity: 'severe' }
+  ],
+  'muscle aches': [
+    { condition: 'Flu', probability: 0.7, severity: 'moderate' },
+    { condition: 'Exercise Strain', probability: 0.8, severity: 'mild' },
+    { condition: 'Fibromyalgia', probability: 0.3, severity: 'moderate' }
+  ],
+  'runny nose': [
+    { condition: 'Common Cold', probability: 0.9, severity: 'mild' },
+    { condition: 'Allergies', probability: 0.7, severity: 'mild' },
+    { condition: 'Flu', probability: 0.4, severity: 'moderate' }
+  ],
+  'loss of appetite': [
+    { condition: 'Depression', probability: 0.5, severity: 'moderate' },
+    { condition: 'Gastroenteritis', probability: 0.6, severity: 'moderate' },
+    { condition: 'Flu', probability: 0.4, severity: 'moderate' }
   ]
 };
 
@@ -62,6 +78,8 @@ const symptomDatabase = {
 const analyzeSymptoms = async (req, res) => {
   try {
     const { symptoms } = req.body;
+    
+    console.log('🔍 Analyzing symptoms:', symptoms);
     
     // Validate input
     if (!symptoms || !Array.isArray(symptoms) || symptoms.length === 0) {
@@ -84,11 +102,19 @@ const analyzeSymptoms = async (req, res) => {
       });
     }
     
+    console.log('🔄 Normalized symptoms:', normalizedSymptoms);
+    
     // Analyze symptoms
     const analysis = performSymptomAnalysis(normalizedSymptoms);
     
     // Generate recommendations
     const recommendations = generateRecommendations(analysis);
+    
+    console.log('✅ Analysis completed:', {
+      matchedSymptoms: analysis.matchedSymptoms.length,
+      conditions: analysis.conditions.length,
+      severity: analysis.overallSeverity
+    });
     
     res.json({
       success: true,
@@ -105,7 +131,7 @@ const analyzeSymptoms = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Symptom analysis error:', error);
+    console.error('❌ Symptom analysis error:', error);
     res.status(500).json({ 
       success: false,
       error: 'Failed to analyze symptoms',
@@ -120,14 +146,27 @@ const performSymptomAnalysis = (symptoms) => {
   const matchedSymptoms = [];
   let severityLevels = [];
   
+  console.log('🧠 Starting symptom analysis for:', symptoms);
+  
   // Process each symptom
   symptoms.forEach(symptom => {
     const symptomLower = symptom.toLowerCase();
     
     // Check for exact matches and partial matches
-    const matchingEntries = Object.entries(symptomDatabase).filter(([key]) => 
-      key.includes(symptomLower) || symptomLower.includes(key)
-    );
+    const matchingEntries = Object.entries(symptomDatabase).filter(([key]) => {
+      // Exact match or contains
+      return key === symptomLower || 
+             key.includes(symptomLower) || 
+             symptomLower.includes(key) ||
+             // Handle common variations
+             (symptomLower.includes('throat') && key.includes('sore throat')) ||
+             (symptomLower.includes('nose') && key.includes('runny nose')) ||
+             (symptomLower.includes('appetite') && key.includes('loss of appetite'));
+    });
+    
+    if (matchingEntries.length > 0) {
+      console.log(`✅ Found matches for "${symptom}":`, matchingEntries.map(([key]) => key));
+    }
     
     matchingEntries.forEach(([symptomKey, conditions]) => {
       matchedSymptoms.push(symptom);
@@ -165,6 +204,13 @@ const performSymptomAnalysis = (symptoms) => {
     ? Math.round((matchedSymptoms.length / symptoms.length) * 100)
     : 0;
   
+  console.log('📊 Analysis results:', {
+    matchedSymptoms: matchedSymptoms.length,
+    totalConditions: conditions.length,
+    overallSeverity,
+    overallConfidence
+  });
+  
   return {
     matchedSymptoms: [...new Set(matchedSymptoms)],
     conditions,
@@ -181,20 +227,35 @@ const generateRecommendations = (analysis) => {
   if (analysis.overallSeverity === 'severe') {
     recommendations.push({
       type: 'urgent',
-      message: 'Seek immediate medical attention',
-      action: 'Visit emergency room or call emergency services'
+      message: '⚠️ Seek immediate medical attention',
+      action: 'Visit emergency room or call emergency services immediately'
+    });
+    recommendations.push({
+      type: 'important',
+      message: '📞 Contact healthcare provider now',
+      action: 'Call your doctor or hospital for immediate consultation'
     });
   } else if (analysis.overallSeverity === 'moderate') {
     recommendations.push({
       type: 'important',
-      message: 'Schedule a consultation with a healthcare provider',
-      action: 'Book an appointment within 24-48 hours'
+      message: '🏥 Schedule a consultation with a healthcare provider',
+      action: 'Book an appointment within 24-48 hours for proper evaluation'
+    });
+    recommendations.push({
+      type: 'general',
+      message: '👩‍⚕️ Consider telehealth consultation',
+      action: 'Use our platform to consult with verified doctors online'
     });
   } else {
     recommendations.push({
       type: 'general',
-      message: 'Monitor symptoms and consider consulting a healthcare provider if they persist',
-      action: 'Rest, stay hydrated, and track symptom changes'
+      message: '👀 Monitor symptoms and rest',
+      action: 'Get plenty of rest, stay hydrated, and track any changes in symptoms'
+    });
+    recommendations.push({
+      type: 'advice',
+      message: '📱 Consider online consultation if symptoms persist',
+      action: 'Book a consultation if symptoms worsen or last more than 3-5 days'
     });
   }
   
@@ -202,17 +263,32 @@ const generateRecommendations = (analysis) => {
   if (analysis.confidence < 30) {
     recommendations.push({
       type: 'advice',
-      message: 'Consider providing more specific symptoms for better analysis',
-      action: 'Add more details about duration, severity, and associated symptoms'
+      message: '📝 Provide more specific symptom details',
+      action: 'Add information about symptom duration, severity, and associated factors for better analysis'
+    });
+  } else if (analysis.confidence > 70) {
+    recommendations.push({
+      type: 'important',
+      message: '🎯 High confidence analysis - take action',
+      action: 'The analysis shows strong symptom correlation - consider following the medical recommendations above'
     });
   }
   
   // General health recommendations
   recommendations.push({
     type: 'lifestyle',
-    message: 'Maintain good health practices',
-    action: 'Get adequate rest, stay hydrated, eat nutritious food, and avoid stress'
+    message: '💪 Maintain good health practices',
+    action: 'Get adequate sleep, stay hydrated, eat nutritious food, exercise regularly, and manage stress'
   });
+  
+  // Emergency warning for severe symptoms
+  if (analysis.conditions.some(c => c.condition.includes('Heart Disease') && c.confidence > 40)) {
+    recommendations.unshift({
+      type: 'urgent',
+      message: '🚨 Possible cardiac symptoms detected',
+      action: 'If experiencing chest pain, shortness of breath, or dizziness - seek immediate emergency care'
+    });
+  }
   
   return recommendations;
 };
@@ -221,6 +297,8 @@ const generateRecommendations = (analysis) => {
 const getSymptomSuggestions = async (req, res) => {
   try {
     const { query } = req.query;
+    
+    console.log('🔍 Getting symptom suggestions for query:', query);
     
     if (!query || query.length < 2) {
       return res.json({ 
@@ -234,12 +312,14 @@ const getSymptomSuggestions = async (req, res) => {
       .filter(symptom => symptom.includes(queryLower))
       .slice(0, 10);
     
+    console.log('✅ Found suggestions:', suggestions);
+    
     res.json({ 
       success: true,
       suggestions 
     });
   } catch (error) {
-    console.error('Symptom suggestions error:', error);
+    console.error('❌ Symptom suggestions error:', error);
     res.status(500).json({ 
       success: false,
       error: 'Failed to get symptom suggestions' 
@@ -247,7 +327,27 @@ const getSymptomSuggestions = async (req, res) => {
   }
 };
 
+// Get all available symptoms
+const getAllSymptoms = async (req, res) => {
+  try {
+    const allSymptoms = Object.keys(symptomDatabase).sort();
+    
+    res.json({
+      success: true,
+      symptoms: allSymptoms,
+      count: allSymptoms.length
+    });
+  } catch (error) {
+    console.error('❌ Get all symptoms error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get symptoms list'
+    });
+  }
+};
+
 module.exports = {
   analyzeSymptoms,
-  getSymptomSuggestions
+  getSymptomSuggestions,
+  getAllSymptoms
 };

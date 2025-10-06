@@ -20,7 +20,7 @@ console.log('🔐 JWT Secret:', process.env.JWT_SECRET ? 'Set' : 'NOT SET');
 // Middleware setup
 // Enable CORS for frontend communication
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:2000'],
+  origin: ['http://localhost:3000', 'http://localhost:2000'], // Both ports for flexibility
   credentials: true
 }));
 
@@ -34,26 +34,43 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Import routes
 const authRoutes = require('./routes/auth');
 const pharmacyRoutes = require('./routes/pharmacies');
-const appointmentRoutes = require('./routes/appointments'); // ADD THIS
-
+const appointmentRoutes = require('./routes/appointments');
+const symptomCheckerRoutes = require('./routes/symptomChecker'); // ADD THIS
 const doctorVerificationRoutes = require('./routes/doctorVerification');
-app.use('/api/doctor-verification', doctorVerificationRoutes);
 
 // Route setup
 console.log('🛣️  Setting up routes...');
+
 // Authentication routes (login, register)
 app.use('/api/auth', authRoutes);
+
 // Pharmacy routes (GET /api/pharmacies)
 app.use('/api/pharmacies', pharmacyRoutes);
+
 // Appointment routes (GET/POST /api/appointments)
-app.use('/api/appointments', appointmentRoutes); // ADD THIS
+app.use('/api/appointments', appointmentRoutes);
+
+// Symptom checker routes (POST /api/symptom-checker)
+app.use('/api/symptom-checker', symptomCheckerRoutes); // ADD THIS
+
+// Doctor verification routes
+app.use('/api/doctor-verification', doctorVerificationRoutes);
+
+console.log('✅ All routes configured');
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Telemedicine API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      auth: '/api/auth',
+      pharmacies: '/api/pharmacies',
+      appointments: '/api/appointments',
+      symptomChecker: '/api/symptom-checker',
+      doctorVerification: '/api/doctor-verification'
+    }
   });
 });
 
@@ -83,6 +100,8 @@ const startServer = async () => {
       console.log(`🏥 API Health Check: http://localhost:${PORT}/api/health`);
       console.log(`💊 Pharmacy API: http://localhost:${PORT}/api/pharmacies`);
       console.log(`📅 Appointments API: http://localhost:${PORT}/api/appointments`);
+      console.log(`🩺 Symptom Checker API: http://localhost:${PORT}/api/symptom-checker`); // ADD THIS
+      console.log(`🔐 Doctor Verification API: http://localhost:${PORT}/api/doctor-verification`);
       console.log('✨ TeleMedicine Backend Ready!');
     });
   } catch (err) {

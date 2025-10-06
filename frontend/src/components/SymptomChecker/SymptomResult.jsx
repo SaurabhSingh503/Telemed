@@ -20,7 +20,8 @@ import {
   LinearProgress,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  Container
 } from '@mui/material';
 import {
   HealthAndSafety as HealthIcon,
@@ -31,12 +32,18 @@ import {
   Psychology as BrainIcon,
   ExpandMore as ExpandMoreIcon,
   Schedule as ScheduleIcon,
-  Phone as PhoneIcon
+  Phone as PhoneIcon,
+  Refresh as RefreshIcon,
+  Dashboard as DashboardIcon,
+  ReportProblem as EmergencyIcon,  // CHANGED: Use ReportProblem instead of Emergency
+  TipsAndUpdates as TipsIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
   const navigate = useNavigate();
+
+  console.log('📊 Displaying symptom results:', results);
 
   // Get severity level color
   const getSeverityColor = (confidence) => {
@@ -56,13 +63,17 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
   const getRecommendationIcon = (type) => {
     switch (type) {
       case 'urgent':
-        return <WarningIcon color="error" />;
+        return <EmergencyIcon color="error" />; // Now uses ReportProblem
       case 'important':
         return <HospitalIcon color="warning" />;
       case 'general':
         return <InfoIcon color="info" />;
-      default:
+      case 'advice':
+        return <TipsIcon color="primary" />;
+      case 'lifestyle':
         return <CheckIcon color="success" />;
+      default:
+        return <InfoIcon color="info" />;
     }
   };
 
@@ -74,22 +85,51 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
     return 'Low Confidence';
   };
 
+  // Get severity alert level
+  const getSeverityAlert = (severity) => {
+    switch (severity) {
+      case 'severe':
+        return 'error';
+      case 'moderate':
+        return 'warning';
+      default:
+        return 'info';
+    }
+  };
+
   if (!results) {
     return (
-      <Paper elevation={2} sx={{ p: 4, textAlign: 'center' }}>
-        <BrainIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          No Analysis Results
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Please add symptoms and run analysis to see results here.
-        </Typography>
-      </Paper>
+      <Container maxWidth="lg">
+        <Paper elevation={2} sx={{ p: 4, textAlign: 'center' }}>
+          <BrainIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            No Analysis Results
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Please add symptoms and run analysis to see results here.
+          </Typography>
+        </Paper>
+      </Container>
     );
   }
 
   return (
     <Box>
+      {/* Header */}
+      <Paper elevation={3} sx={{ p: 4, mb: 4, background: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)', color: 'white' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <BrainIcon sx={{ fontSize: 48 }} />
+          <Box>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              Symptom Analysis Results
+            </Typography>
+            <Typography variant="h6" sx={{ opacity: 0.9 }}>
+              AI-powered health assessment completed
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
+
       {/* Analysis Summary */}
       <Card elevation={3} sx={{ mb: 3, borderLeft: 4, borderColor: 'primary.main' }}>
         <CardContent>
@@ -187,6 +227,24 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
         </Card>
       )}
 
+      {/* Severity Assessment */}
+      {results.severity && (
+        <Alert 
+          severity={getSeverityAlert(results.severity)} 
+          sx={{ mb: 3 }}
+          icon={results.severity === 'severe' ? <EmergencyIcon /> : results.severity === 'moderate' ? <WarningIcon /> : <InfoIcon />}
+        >
+          <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+            Severity Assessment: {results.severity.toUpperCase()}
+          </Typography>
+          <Typography variant="body2">
+            {results.severity === 'severe' && '🚨 This appears to be a potentially serious condition requiring immediate medical attention.'}
+            {results.severity === 'moderate' && '⚠️ This condition may require medical evaluation. Consider scheduling an appointment soon.'}
+            {results.severity === 'mild' && 'ℹ️ This appears to be a mild condition. Monitor symptoms and seek care if they worsen.'}
+          </Typography>
+        </Alert>
+      )}
+
       {/* Possible Conditions */}
       {results.possibleConditions && results.possibleConditions.length > 0 && (
         <Card elevation={2} sx={{ mb: 3 }}>
@@ -196,7 +254,7 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
               Possible Health Conditions
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Based on your symptoms, here are the most likely conditions:
+              Based on your symptoms, here are the most likely conditions (ranked by confidence):
             </Typography>
 
             <List>
@@ -209,7 +267,7 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
                     primary={
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                         <Typography variant="subtitle1" fontWeight="bold">
-                          {condition.condition}
+                          {index + 1}. {condition.condition}
                         </Typography>
                         <Chip
                           label={`${condition.confidence}% confidence`}
@@ -237,8 +295,8 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
         <Card elevation={2} sx={{ mb: 3 }}>
           <CardContent>
             <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <InfoIcon color="info" />
-              Health Recommendations
+              <TipsIcon color="info" />
+              Personalized Health Recommendations
             </Typography>
 
             <List>
@@ -266,28 +324,11 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
         </Card>
       )}
 
-      {/* Severity Assessment */}
-      {results.severity && (
-        <Alert 
-          severity={results.severity === 'severe' ? 'error' : results.severity === 'moderate' ? 'warning' : 'info'} 
-          sx={{ mb: 3 }}
-        >
-          <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-            Severity Level: {results.severity.toUpperCase()}
-          </Typography>
-          <Typography variant="body2">
-            {results.severity === 'severe' && 'This appears to be a potentially serious condition. Seek immediate medical attention.'}
-            {results.severity === 'moderate' && 'This condition may require medical evaluation. Consider scheduling an appointment.'}
-            {results.severity === 'mild' && 'This appears to be a mild condition. Monitor symptoms and seek care if they worsen.'}
-          </Typography>
-        </Alert>
-      )}
-
       {/* Next Steps */}
       <Card elevation={3} sx={{ mb: 3, bgcolor: 'primary.light', color: 'primary.contrastText' }}>
         <CardContent>
           <Typography variant="h6" fontWeight="bold" gutterBottom>
-            Recommended Next Steps
+            🎯 Recommended Next Steps
           </Typography>
           
           <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -331,10 +372,10 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
       {/* Medical Disclaimer */}
       <Alert severity="warning" sx={{ mb: 3 }}>
         <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-          Important Medical Disclaimer
+          ⚠️ Important Medical Disclaimer
         </Typography>
         <Typography variant="body2">
-          {results.disclaimer || 'This analysis is for informational purposes only and should not replace professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider for any health concerns or before making any medical decisions.'}
+          {results.disclaimer || 'This analysis is for informational purposes only and should not replace professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider for any health concerns or before making any medical decisions. If you are experiencing a medical emergency, call emergency services immediately.'}
         </Typography>
       </Alert>
 
@@ -342,39 +383,58 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1" fontWeight="bold">
-            How This Analysis Works
+            🤖 How This AI Analysis Works
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant="body2" paragraph>
-            Our AI-powered symptom checker uses advanced algorithms to analyze your reported symptoms against a comprehensive medical database. The system:
+            Our AI-powered symptom checker uses advanced algorithms to analyze your reported symptoms against a comprehensive medical database. Here's how it works:
           </Typography>
           <List dense>
             <ListItem sx={{ px: 0 }}>
               <ListItemIcon>
                 <CheckIcon color="primary" />
               </ListItemIcon>
-              <ListItemText primary="Compares your symptoms with thousands of medical conditions" />
+              <ListItemText 
+                primary="Symptom Pattern Recognition"
+                secondary="Compares your symptoms with thousands of documented medical conditions" 
+              />
             </ListItem>
             <ListItem sx={{ px: 0 }}>
               <ListItemIcon>
                 <CheckIcon color="primary" />
               </ListItemIcon>
-              <ListItemText primary="Calculates probability scores based on symptom patterns" />
+              <ListItemText 
+                primary="Probability Calculation"
+                secondary="Calculates confidence scores based on symptom-condition correlations" 
+              />
             </ListItem>
             <ListItem sx={{ px: 0 }}>
               <ListItemIcon>
                 <CheckIcon color="primary" />
               </ListItemIcon>
-              <ListItemText primary="Provides personalized recommendations based on severity" />
+              <ListItemText 
+                primary="Severity Assessment"
+                secondary="Evaluates the urgency level based on symptom severity patterns" 
+              />
             </ListItem>
             <ListItem sx={{ px: 0 }}>
               <ListItemIcon>
                 <CheckIcon color="primary" />
               </ListItemIcon>
-              <ListItemText primary="Continuously learns from medical literature and data" />
+              <ListItemText 
+                primary="Personalized Recommendations"
+                secondary="Provides tailored health guidance and next steps based on analysis" 
+              />
             </ListItem>
           </List>
+          
+          <Divider sx={{ my: 2 }} />
+          
+          <Typography variant="body2" color="text.secondary">
+            <strong>Analysis Accuracy:</strong> This tool achieved {results.confidence || 0}% confidence in matching your symptoms. 
+            Higher confidence indicates stronger correlation with known medical conditions.
+          </Typography>
         </AccordionDetails>
       </Accordion>
 
@@ -384,6 +444,7 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
           variant="outlined"
           onClick={onNewAnalysis}
           size="large"
+          startIcon={<RefreshIcon />}
         >
           New Analysis
         </Button>
@@ -392,6 +453,7 @@ const SymptomResult = ({ results, onNewAnalysis, onBookAppointment }) => {
           variant="contained"
           onClick={() => navigate('/dashboard')}
           size="large"
+          startIcon={<DashboardIcon />}
         >
           Back to Dashboard
         </Button>

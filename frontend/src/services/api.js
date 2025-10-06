@@ -77,8 +77,23 @@ export const apiEndpoints = {
     return api.get('/pharmacies', { params });
   },
   
-  // Symptom Checker
-  checkSymptoms: (symptoms) => api.post('/symptom-checker', { symptoms }),
+  // Symptom Checker - UPDATED ENDPOINTS
+  checkSymptoms: (symptoms) => {
+    console.log('🔍 Calling symptom checker API with:', symptoms);
+    return api.post('/symptom-checker', { symptoms });
+  },
+  analyzeSymptoms: (symptoms) => {
+    console.log('🧠 Calling symptom analyzer API with:', symptoms);
+    return api.post('/symptom-checker/analyze', { symptoms });
+  },
+  getSymptomSuggestions: (query) => {
+    console.log('💡 Getting symptom suggestions for:', query);
+    return api.get(`/symptom-checker/suggestions?query=${query}`);
+  },
+  getAllSymptoms: () => {
+    console.log('📋 Getting all available symptoms');
+    return api.get('/symptom-checker/symptoms');
+  },
 
   // Doctor Verification
   submitDoctorVerification: (formData) => {
@@ -90,7 +105,7 @@ export const apiEndpoints = {
   },
   getDoctorVerificationStatus: () => api.get('/doctor-verification/status'),
   
- // Admin endpoints
+  // Admin endpoints
   getPendingVerifications: () => api.get('/doctor-verification/pending'),
   getVerifiedDoctors: () => api.get('/doctor-verification/verified'),
   approveDoctorVerification: (doctorId, data) => api.post(`/doctor-verification/approve/${doctorId}`, data),
